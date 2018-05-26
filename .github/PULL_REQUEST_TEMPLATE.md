@@ -3,13 +3,13 @@
     Your contribution to this project is greatly appreciated!
 
     Please make sure you have read the contributing section
-    at https://github.com/PowerShell/SqlServerDsc#contributing.
+    at https://github.com/PowerShell/DscResource.Template#contributing.
 
     Please prefix the PR title with the resource name,
-    i.e. 'SqlSetup: My short description'.
+    i.e. 'Folder: My short description'.
     If this is a breaking change, then also prefix the PR title
     with 'BREAKING CHANGE:',
-    i.e. 'BREAKING CHANGE: SqlSetup: My short description'.
+    i.e. 'BREAKING CHANGE: Folder: My short description'.
 
     You may remove this and the other comments, but please keep the headers
     and the task list.

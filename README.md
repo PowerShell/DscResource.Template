@@ -64,8 +64,8 @@ or higher.
 
 ## Examples
 
-You can review the [Examples](/Examples) directory in the SqlServerDsc module
-for some general use scenarios for all of the resources that are in the module.
+You can review the [Examples](/Examples) directory for some general use
+scenarios for all of the resources that are in the module.
 
 ## Change log
 
@@ -73,10 +73,10 @@ A full list of changes in each version can be found in the [change log](CHANGELO
 
 ## Resources
 
-* [**SqlServerDatabaseMail**](#sqlserverdatabasemail) resource
+* [**Folder**](#folder) resource
   to manage SQL Server Database Mail.
 
-### SqlServerDatabaseMail
+### Folder
 
 Resource to manage SQL Server Database Mail.
 
@@ -110,5 +110,5 @@ Resource to manage SQL Server Database Mail.
 
 #### Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/SqlServerDsc/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+SqlServerDatabaseMail).
+All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+Folder).
 

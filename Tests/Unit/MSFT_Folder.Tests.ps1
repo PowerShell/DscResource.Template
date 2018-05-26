@@ -1,5 +1,5 @@
 $script:DSCModuleName = 'DscResource.Template'
-$script:DSCResourceName = 'MSFT_SqlServerDatabaseMail'
+$script:DSCResourceName = 'MSFT_Folder'
 
 #region HEADER
 
