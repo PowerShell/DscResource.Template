@@ -14,11 +14,11 @@
 
 version: 1.0.{build}.0 # TODO: Modify version so it fits your versioning.
 install:
-    - git clone https://github.com/johlju/DscResource.Tests
-    - ps: Push-Location
-    - ps: cd "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests"
-    - git checkout fix-dscresourcetemplate
-    - ps: Pop-Location
+    - git clone https://github.com/PowerShell/DscResource.Tests
+    - ps: |
+        # This is workaround for AppVeyor replaces '.' with '-' in the
+        # folder name.
+        Rename-Item -Path C:\temp\kalle -NewName kalle2
     - ps: Write-Verbose -Message "PowerShell version $($PSVersionTable.PSVersion)" -Verbose
     - ps: Import-Module "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
     - ps: Invoke-AppveyorInstallTask
