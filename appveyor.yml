@@ -18,7 +18,7 @@ install:
     - ps: |
         # This is workaround for AppVeyor replaces '.' with '-' in the
         # folder name.
-        Rename-Item -Path C:\temp\kalle -NewName kalle2
+        Rename-Item -Path 'C:\projects\dscresource-template' -NewName 'DscResource.Template'
     - ps: Write-Verbose -Message "PowerShell version $($PSVersionTable.PSVersion)" -Verbose
     - ps: Import-Module "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
     - ps: Invoke-AppveyorInstallTask
