@@ -1,10 +1,24 @@
+################################################################################
+# This is the template for appveyor.yml which uses the "default model" of the
+# test framework in https://github.com/PowerShell/DscResource.Tests.
+#
+# This template assumes you have connected your repository to AppVeyor
+# (https://ci.appveyor.com).
+#
+# Before using it in your repository, modify places marked with 'TODO:'.
+################################################################################
+
 #---------------------------------#
 #      environment configuration  #
 #---------------------------------#
-version: 9.0.{build}.0
-image: Visual Studio 2017
+
+version: 1.0.{build}.0 # TODO: Modify version so it fits your versioning.
 install:
-    - git clone https://github.com/PowerShell/DscResource.Tests
+    - git clone https://github.com/johlju/DscResource.Tests
+    - ps: Push-Location
+    - ps: cd "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests"
+    - git checkout fix-dscresourcetemplate
+    - ps: Pop-Location
     - ps: Write-Verbose -Message "PowerShell version $($PSVersionTable.PSVersion)" -Verbose
     - ps: Import-Module "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
     - ps: Invoke-AppveyorInstallTask
@@ -21,30 +35,10 @@ build: false
 
 test_script:
     - ps: |
-        # Workaround for issue #239 and issue #774.
-        Write-Verbose -Message '--- WORKAROUND FOR ISSUE #239 AND ISSUE #774 ---' -Verbose
-        $sqlModules = Get-Module -ListAvailable -Name 'sql*'
-        $sqlUniqueModulePath = Split-Path -Path (Split-Path $sqlModules.Path -Parent) -Parent | Sort-Object -Unique
-        $sqlUniqueModulePath | ForEach-Object -Process {
-            $newFolderName = '{0}.old' -f (Split-Path -Path $_ -Leaf)
-            Write-Verbose ('Renaming ''{0}'' to ''..\{1}''' -f $_, $newFolderName) -Verbose
-            Rename-Item $_ -NewName $newFolderName -Force
-        }
-
-        Write-Verbose -Message '' -Verbose
-
-        # Workaround for issue #798
-        Write-Verbose -Message '--- WORKAROUND FOR ISSUE #798 ---' -Verbose
-        $azureModules = Get-Module -ListAvailable -Name 'Azure*'
-        $azureUniqueModulePath = Split-Path -Path (Split-Path $azureModules.Path -Parent) -Parent | Sort-Object -Unique
-        $azureUniqueModulePath | ForEach-Object -Process {
-            $newFolderName = '{0}.old' -f (Split-Path -Path $_ -Leaf)
-            Write-Verbose ('Renaming ''{0}'' to ''..\{1}''' -f $_, $newFolderName) -Verbose
-            Rename-Item $_ -NewName $newFolderName -Force
-        }
-        Write-Verbose -Message '' -Verbose
-
-        Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo -ExcludeTag @() -RunTestInOrder
+        # TODO:
+        # To use -CodeCovIo parameter, the repository need to connected
+        # to Codecov (see https://codecov.io/).
+        Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo -ExcludeTag @()
 
 #---------------------------------#
 #      deployment configuration   #
