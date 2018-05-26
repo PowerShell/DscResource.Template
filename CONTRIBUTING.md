@@ -65,6 +65,14 @@ class MSFT_Folder : OMI_BaseResource
 Any composite (with a Configuration) or class-based resources should be prefixed
 with just 'Sql'
 
+### Helper functions
+
+Helper functions or wrapper functions that are used by the resource can preferably
+be placed in the resource module file. If the functions are of a type that could
+be used by more than one resource, then the functions should be placed in the
+shared [DscResource.Template.ResourceHelper.psm1](/Modules/DscResource.Template.ResourceHelper.psm1)
+module file.
+
 ### Localization
 
 In each resource folder there should be, at least, a localization folder for
@@ -107,11 +115,11 @@ preferably be used whenever possible.
 throw ($script:localizedData.InstallationFailedMessage -f $Path, $processId)
 ```
 
-##### Helper functions
+#### Helper functions for localization
 
 There are also five helper functions to simplify localization.
 
-###### New-InvalidArgumentException
+##### New-InvalidArgumentException
 
 ```powershell
 <#
@@ -139,7 +147,7 @@ if ( -not $resultOfEvaluation )
 }
 ```
 
-###### New-InvalidOperationException
+##### New-InvalidOperationException
 
 ```powershell
 <#
@@ -170,7 +178,7 @@ catch
 
 ```
 
-###### New-ObjectNotFoundException
+##### New-ObjectNotFoundException
 
 ```powershell
 <#
@@ -201,7 +209,7 @@ catch
 
 ```
 
-###### New-InvalidResultException
+##### New-InvalidResultException
 
 ```powershell
 <#
@@ -236,7 +244,7 @@ catch
 
 ```
 
-###### Get-LocalizedData
+##### Get-LocalizedData
 
 ```powershell
 <#
@@ -258,14 +266,6 @@ Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) `
 
 $script:localizedData = Get-LocalizedData -ResourceName 'MSFT_SqlSetup'
 ```
-
-### Helper functions
-
-Helper functions or wrapper functions that are used by the resource can preferably
-be placed in the resource module file. If the functions are of a type that could
-be used by more than one resource, then the functions should be placed in the
-shared [DscResource.Template.ResourceHelper.psm1](/Modules/DscResource.Template.ResourceHelper.psm1)
-module file.
 
 ### Unit tests
 
