@@ -111,4 +111,3 @@ Resource to manage SQL Server Database Mail.
 #### Known issues
 
 All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+Folder).
-
