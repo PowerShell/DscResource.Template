@@ -1,32 +1,52 @@
+<#
+    .SYNOPSIS
+        Template for creating DSC Resource Unit Tests
+    .DESCRIPTION
+        To Use:
+        1. Copy to \Tests\Unit\ folder and rename <ResourceName>.tests.ps1 (e.g. MSFT_xFirewall.tests.ps1)
+        2. Customize TODO sections.
+        3. Delete all template comments (TODOs, etc.)
+    .NOTES
+        There are multiple methods for writing unit tests. This template provides a few examples
+        which you are welcome to follow but depending on your resource, you may want to
+        design it differently. Read through our TestsGuidelines.md file for an intro on how to
+        write unit tests for DSC resources: https://github.com/PowerShell/DscResources/blob/master/TestsGuidelines.md
+#>
+
+#region HEADER
+# TODO: Update to correct module name and resource name.
 $script:DSCModuleName = 'DscResource.Template'
 $script:DSCResourceName = 'MSFT_Folder'
 
-#region HEADER
-
-# Unit Test Template Version: 1.2.0
+# Unit Test Template Version: 1.3.0
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
-{
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath '\DSCResource.Tests\'))
+     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+{s
+    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
 }
 
-Import-Module (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1') -Force
+Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 
+# TODO: Insert the correct <ModuleName> and <ResourceName> for your resource
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
+    -ResourceType 'Mof' `
     -TestType Unit
 
 #endregion HEADER
 
 function Invoke-TestSetup
 {
+     # TODO: Optional init code goes here...
 }
 
 function Invoke-TestCleanup
 {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
+
+    # TODO: Other Optional Cleanup Code Goes Here...
 }
 
 # Begin Testing
@@ -35,287 +55,259 @@ try
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
-        $mockServerName = 'localhost'
-        $mockInstanceName = 'MSSQLSERVER'
-        $mockAccountName = 'MyMail'
-        $mockEmailAddress = 'NoReply@company.local'
-        $mockReplyToAddress = $mockEmailAddress
-        $mockProfileName = 'MyMailProfile'
-        $mockMailServerName = 'mail.company.local'
-        $mockDisplayName = $mockMailServerName
-        $mockDescription = 'My mail description'
-        $mockTcpPort = 25
+        <#
+            TODO: Optionally create any variables here for use by your tests
 
-        $mockDatabaseMailDisabledConfigValue = 0
-        $mockDatabaseMailEnabledConfigValue = 1
+            TODO: Optionally create any script blocks that will be used by mocks
+            in BeforeAll/BeforeEach to dynamically set variables.
 
-        $mockAgentMailTypeDatabaseMail = 'DatabaseMail'
-        $mockAgentMailTypeSqlAgentMail = 'SQLAgentMail'
+            TODO: Complete the Describe blocks below and add more as needed.
+            The most common method for unit testing is to test by function. For more information
+            check out this introduction to writing unit tests in Pester:
+            https://www.simple-talk.com/sysadmin/powershell/practical-powershell-unit-testing-getting-started/#eleventh
+            You may also follow one of the patterns provided in the TestsGuidelines.md file:
+            https://github.com/PowerShell/DscResources/blob/master/TestsGuidelines.md
+        #>
 
-        $mockLoggingLevelNormal = 'Normal'
-        $mockLoggingLevelNormalValue = '1'
-        $mockLoggingLevelExtended = 'Extended'
-        $mockLoggingLevelExtendedValue = '2'
-        $mockLoggingLevelVerbose = 'Verbose'
-        $mockLoggingLevelVerboseValue = '3'
+        $mockFolderObject = $null
 
-        $mockMissingAccountName = 'MissingAccount'
-
-        # Default parameters that are used for the It-blocks.
-        $mockDefaultParameters = @{
-            InstanceName   = $mockInstanceName
-            ServerName     = $mockServerName
-            AccountName    = $mockAccountName
-            EmailAddress   = $mockEmailAddress
-            MailServerName = $mockMailServerName
-            ProfileName    = $mockProfileName
-        }
-
-        # Contains mocked object that is used between several mocks.
-        $mailAccountObject = {
-            New-Object -TypeName Object |
-                Add-Member -MemberType NoteProperty -Name 'Name' -Value $mockAccountName -PassThru |
-                Add-Member -MemberType NoteProperty -Name 'DisplayName' -Value $mockDisplayName -PassThru |
-                Add-Member -MemberType NoteProperty -Name 'EmailAddress' -Value $mockEmailAddress -PassThru |
-                Add-Member -MemberType NoteProperty -Name 'ReplyToAddress' -Value $mockReplyToAddress -PassThru |
-                Add-Member -MemberType NoteProperty -Name 'Description' -Value $mockDynamicDescription -PassThru |
-                Add-Member -MemberType ScriptProperty -Name 'MailServers' -Value {
-                return @(
-                    New-Object -TypeName Object |
-                        Add-Member -MemberType NoteProperty -Name 'Name' -Value $mockMailServerName -PassThru |
-                        Add-Member -MemberType NoteProperty -Name 'Port' -Value $mockTcpPort -PassThru |
-                        Add-Member -MemberType ScriptMethod -Name 'Rename' -Value {
-                        $script:MailServerRenameMethodCallCount += 1
-                    } -PassThru |
-                        Add-Member -MemberType ScriptMethod -Name 'Alter' -Value {
-                        $script:MailServerAlterMethodCallCount += 1
-                    } -PassThru -Force
-                )
-            } -PassThru |
-                Add-Member -MemberType ScriptMethod -Name 'Create' -Value {
-                $script:MailAccountCreateMethodCallCount += 1
-            } -PassThru |
-                Add-Member -MemberType ScriptMethod -Name 'Drop' -Value {
-                $script:MailAccountDropMethodCallCount += 1
-            } -PassThru |
-                Add-Member -MemberType ScriptMethod -Name 'Alter' -Value {
-                $script:MailAccountAlterMethodCallCount += 1
-        } -PassThru -Force
-        }
-
-        $mockNewObject_MailAccount = {
-            # This executes the variable that contains the mock
-            return @( & $mailAccountObject )
-        }
-
-        $mailProfileObject = {
-            return @(
-                New-Object -TypeName Object |
-                    Add-Member -MemberType NoteProperty -Name 'Name' -Value $mockProfileName -PassThru |
-                    Add-Member -MemberType NoteProperty -Name 'Description' -Value $mockProfileName -PassThru |
-                    Add-Member -MemberType ScriptMethod -Name 'Create' -Value {
-                    $script:MailProfileCreateMethodCallCount += 1
-                } -PassThru |
-                    Add-Member -MemberType ScriptMethod -Name 'Alter' -Value {
-                    $script:MailProfileAlterMethodCallCount += 1
-                } -PassThru |
-                    Add-Member -MemberType ScriptMethod -Name 'Drop' -Value {
-                    $script:MailProfileDropMethodCallCount += 1
-                    } -PassThru |
-                    Add-Member -MemberType ScriptMethod -Name 'AddPrincipal' -Value {
-                    $script:MailProfileAddPrincipalMethodCallCount += 1
-                } -PassThru |
-                    Add-Member -MemberType ScriptMethod -Name 'AddAccount' -Value {
-                    $script:MailProfileAddAccountMethodCallCount += 1
-                } -PassThru -Force
-            )
-        }
-
-        $mockNewObject_MailProfile = {
-            # This executes the variable that contains the mock
-            return @( & $mailProfileObject )
-        }
-
-        $mockConnectSQL = {
-            return New-Object -TypeName Object |
-                Add-Member -MemberType ScriptProperty -Name 'Configuration' -Value {
-                return New-Object -TypeName Object |
-                    Add-Member -MemberType ScriptProperty -Name 'DatabaseMailEnabled' -Value {
-                    return New-Object -TypeName Object |
-                        Add-Member -MemberType NoteProperty -Name 'RunValue' -Value $mockDynamicDatabaseMailEnabledRunValue -PassThru -Force
-                } -PassThru -Force
-            } -PassThru |
-                Add-Member -MemberType ScriptProperty -Name 'Mail' -Value {
-                return New-Object -TypeName Object |
-                    Add-Member -MemberType ScriptProperty -Name 'Accounts' -Value {
-                    # This executes the variable that contains the mock
-                    return @( & $mailAccountObject )
-                } -PassThru |
-                    Add-Member -MemberType ScriptProperty -Name 'ConfigurationValues' -Value {
-                    return @{
-                        'LoggingLevel' = New-Object -TypeName Object |
-                            Add-Member -MemberType NoteProperty -Name 'Value' -Value $mockDynamicLoggingLevelValue -PassThru |
-                            Add-Member -MemberType ScriptMethod -Name 'Alter' -Value {
-                            $script:LoggingLevelAlterMethodCallCount += 1
-                        } -PassThru -Force
-                    }
-                } -PassThru |
-                    Add-Member -MemberType ScriptProperty -Name 'Profiles' -Value {
-                    # This executes the variable that contains the mock
-                    return @( & $mailProfileObject )
-                } -PassThru -Force
-            } -PassThru |
-                Add-Member -MemberType ScriptProperty -Name 'JobServer' -Value {
-                return New-Object -TypeName Object |
-                    Add-Member -MemberType NoteProperty -Name 'AgentMailType' -Value $mockDynamicAgentMailType -PassThru |
-                    Add-Member -MemberType NoteProperty -Name 'DatabaseMailProfile' -Value $mockDynamicDatabaseMailProfile -PassThru |
-                    Add-Member -MemberType ScriptMethod -Name 'Alter' -Value {
-                    $script:JobServerAlterMethodCallCount += 1
-                } -PassThru -Force
-            } -PassThru -Force
-        }
-
-        Describe "MSFT_SqlServerDatabaseMail\Get-TargetResource" -Tag 'Get' {
+        Describe "MSFT_Folder\Get-TargetResource" -Tag 'Get' {
             BeforeAll {
-                $mockDynamicDatabaseMailEnabledRunValue = $mockDatabaseMailEnabledConfigValue
-                $mockDynamicLoggingLevelValue = $mockLoggingLevelExtendedValue
-                $mockDynamicDescription = $mockDescription
-                $mockDynamicAgentMailType = $mockAgentMailTypeDatabaseMail
-                $mockDynamicDatabaseMailProfile = $mockProfileName
+                $defaultParameters = @{
+                    Path = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
+                    ReadOnly = $false
+                }
+
+                # Per describe-block initialization
+                $script:mockFolderObject = New-Item -Path $defaultParameters.Path -ItemType 'Directory' -Force
+            }
+
+            AfterAll {
+                # Per describe-block cleanup
+                #Remove-Item -Path $defaultParameters.Path -Force
             }
 
             BeforeEach {
-                Mock -CommandName Connect-SQL -MockWith $mockConnectSQL -Verifiable
+                # per test initialization within the describe-block
 
-                $getTargetResourceParameters = $mockDefaultParameters.Clone()
+                $getTargetResourceParameters = $defaultParameters.Clone()
+            }
+
+            AfterEach {
+                # per test cleanup within the describe-block
             }
 
             Context 'When the system is in the desired state' {
+                BeforeAll {
+                    # Per context-block initialization
+                }
+
+                AfterAll {
+                    # Per context-block cleanup
+                }
+
+                BeforeEach {
+                    # per test initialization
+                }
+
+                AfterEach {
+                    # per test cleanup
+                }
+
                 Context 'When the configuration is absent' {
+                    BeforeAll {
+                        # Per context-block initialization
+                        Mock -CommandName Get-Item -MockWith {
+                            return $null
+                        } -Verifiable
+                    }
+
+                    AfterAll {
+                        # Per context-block cleanup
+                    }
+
                     BeforeEach {
-                        $getTargetResourceParameters['AccountName'] = $mockMissingAccountName
+                        # per test initialization
+                    }
+
+                    AfterEach {
+                        # per test cleanup
                     }
 
                     It 'Should return the state as absent' {
+                        # test-code
                         $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                         $getTargetResourceResult.Ensure | Should -Be 'Absent'
 
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+                        Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
                     }
 
                     It 'Should return the same values as passed as parameters' {
-                        $result = Get-TargetResource @getTargetResourceParameters
-                        $result.ServerName | Should -Be $getTargetResourceParameters.ServerName
-                        $result.InstanceName | Should -Be $getTargetResourceParameters.InstanceName
-
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                    }
-
-                    It 'Should return $null for the rest of the properties' {
+                        # test-code
                         $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.AccountName | Should -BeNullOrEmpty
-                        $getTargetResourceResult.EmailAddress | Should -BeNullOrEmpty
-                        $getTargetResourceResult.MailServerName | Should -BeNullOrEmpty
-                        $getTargetResourceResult.LoggingLevel | Should -BeNullOrEmpty
-                        $getTargetResourceResult.ProfileName | Should -BeNullOrEmpty
-                        $getTargetResourceResult.DisplayName | Should -BeNullOrEmpty
-                        $getTargetResourceResult.ReplyToAddress | Should -BeNullOrEmpty
-                        $getTargetResourceResult.Description | Should -BeNullOrEmpty
-                        $getTargetResourceResult.TcpPort | Should -BeNullOrEmpty
+                        $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
+                        $getTargetResourceResult.ReadOnly | Should -Be $getTargetResourceParameters.ReadOnly
+                  }
 
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+                    It 'Should return $false or $null respectively for the rest of the properties' {
+                        # test-code
+                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+                        $getTargetResourceResult.Hidden | Should -Be $false
+                        $getTargetResourceResult.EnableSharing | Should -Be $false
+                        $getTargetResourceResult.ShareName | Should -BeNullOrEmpty
                     }
                 }
 
                 Context 'When the configuration is present' {
+                    BeforeAll {
+                        # Per context-block initialization
+                        Mock -CommandName Get-Item -MockWith {
+                            return $script:mockFolderObject
+                        }
+
+                        $testCase = @(
+                            @{
+                                EnableSharing = $false
+                            },
+                            @{
+                                EnableSharing = $true
+                            }
+                        )
+                    }
+
+                    AfterAll {
+                        # Per context-block cleanup
+                    }
+
+                    BeforeEach {
+                        # per test initialization
+                        Mock -CommandName Get-SmbShare -MockWith {
+                            return @{
+                                # This is using the parameter from the test case.
+                                Path = $EnableSharing
+                            }
+                        }
+                    }
+
+                    AfterEach {
+                        # per test cleanup
+                    }
+
                     It 'Should return the state as present' {
+                        # test-code
                         $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                         $getTargetResourceResult.Ensure | Should -Be 'Present'
 
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+                        Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
                     }
 
                     It 'Should return the same values as passed as parameters' {
-                        $result = Get-TargetResource @getTargetResourceParameters
-                        $result.ServerName | Should -Be $getTargetResourceParameters.ServerName
-                        $result.InstanceName | Should -Be $getTargetResourceParameters.InstanceName
-
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                    }
-
-                    It 'Should return the correct values for the rest of the properties' {
                         $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.AccountName | Should -Be $mockAccountName
-                        $getTargetResourceResult.EmailAddress | Should -Be $mockEmailAddress
-                        $getTargetResourceResult.MailServerName | Should -Be $mockMailServerName
-                        $getTargetResourceResult.LoggingLevel | Should -Be $mockLoggingLevelExtended
-                        $getTargetResourceResult.ProfileName | Should -Be $mockProfileName
-                        $getTargetResourceResult.DisplayName | Should -Be $mockDisplayName
-                        $getTargetResourceResult.ReplyToAddress | Should -Be $mockReplyToAddress
-                        $getTargetResourceResult.Description | Should -Be $mockDescription
-                        $getTargetResourceResult.TcpPort | Should -Be $mockTcpPort
-
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                    }
-                }
-
-                Context 'When the current logging level is ''Normal''' {
-                    BeforeAll {
-                        $mockDynamicLoggingLevelValue = $mockLoggingLevelNormalValue
+                        $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
                     }
 
-                    It 'Should return the correct value for property LoggingLevel' {
+                    It 'Should return the correct values when EnableSharing is ''<EnableSharing>''' -TestCases $testCase {
+                        param
+                        (
+                            # EnableSharing
+                            [Parameter(Mandatory = $true)]
+                            [System.Boolean]
+                            $EnableSharing
+                        )
                         $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.LoggingLevel | Should -Be $mockLoggingLevelNormal
-                    }
-                }
+                        $getTargetResourceResult.EnableSharing | Should -Be $EnableSharing
 
-                Context 'When the current logging level is ''Extended''' {
-                    BeforeAll {
-                        $mockDynamicLoggingLevelValue = $mockLoggingLevelExtendedValue
-                    }
-
-                    It 'Should return the correct value for property LoggingLevel' {
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.LoggingLevel | Should -Be $mockLoggingLevelExtended
-                    }
-                }
-
-                Context 'When the current logging level is ''Verbose''' {
-                    BeforeAll {
-                        $mockDynamicLoggingLevelValue = $mockLoggingLevelVerboseValue
-                    }
-
-                    It 'Should return the correct value for property LoggingLevel' {
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.LoggingLevel | Should -Be $mockLoggingLevelVerbose
-                    }
-                }
-
-                Context 'When the current description is returned as an empty string' {
-                    BeforeAll {
-                        $mockDynamicDescription = ''
-                    }
-
-                    It 'Should return $null for property Description' {
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.Description | Should -BeNullOrEmpty
-                    }
-                }
-
-                Context 'When the Database Mail feature is disabled' {
-                    BeforeAll {
-                        $mockDynamicDatabaseMailEnabledRunValue = $mockDatabaseMailDisabledConfigValue
-                    }
-
-                    It 'Should return the correct values' {
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.Ensure | Should -Be 'Absent'
-                        $getTargetResourceResult.AccountName | Should -BeNullOrEmpty
+                        Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
                     }
                 }
             }
 
+            # Context 'When the system is not in the desired state' {
+            #     BeforeAll {
+            #         # Per context-block initialization
+            #     }
+
+            #     BeforeAll {
+            #         # Per context-block cleanup
+            #     }
+
+            #     Context 'When the configuration is absent' {
+            #         BeforeEach {
+            #             # per-test-initialization
+            #         }
+
+            #         AfterEach {
+            #             # per-test-cleanup
+            #         }
+
+            #         It 'Should return the state as absent' {
+            #             # test-code
+            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+            #             $getTargetResourceResult.Ensure | Should -Be 'Absent'
+
+            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+            #         }
+
+            #         It 'Should return the same values as passed as parameters' {
+            #             # test-code
+            #             $result = Get-TargetResource @getTargetResourceParameters
+            #             $result.ServerName | Should -Be $getTargetResourceParameters.ServerName
+            #             $result.InstanceName | Should -Be $getTargetResourceParameters.InstanceName
+
+            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+            #         }
+
+            #         It 'Should return $null for the rest of the properties' {
+            #             # test-code
+            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+            #             $getTargetResourceResult.AccountName | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.EmailAddress | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.MailServerName | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.LoggingLevel | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.ProfileName | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.DisplayName | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.ReplyToAddress | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.Description | Should -BeNullOrEmpty
+            #             $getTargetResourceResult.TcpPort | Should -BeNullOrEmpty
+
+            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+            #         }
+            #     }
+
+            #     Context 'When the configuration is present' {
+            #         It 'Should return the state as present' {
+            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+            #             $getTargetResourceResult.Ensure | Should -Be 'Present'
+
+            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+            #         }
+
+            #         It 'Should return the same values as passed as parameters' {
+            #             $result = Get-TargetResource @getTargetResourceParameters
+            #             $result.ServerName | Should -Be $getTargetResourceParameters.ServerName
+            #             $result.InstanceName | Should -Be $getTargetResourceParameters.InstanceName
+
+            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+            #         }
+
+            #         It 'Should return the correct values for the rest of the properties' {
+            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+            #             $getTargetResourceResult.AccountName | Should -Be $mockAccountName
+            #             $getTargetResourceResult.EmailAddress | Should -Be $mockEmailAddress
+            #             $getTargetResourceResult.MailServerName | Should -Be $mockMailServerName
+            #             $getTargetResourceResult.LoggingLevel | Should -Be $mockLoggingLevelExtended
+            #             $getTargetResourceResult.ProfileName | Should -Be $mockProfileName
+            #             $getTargetResourceResult.DisplayName | Should -Be $mockDisplayName
+            #             $getTargetResourceResult.ReplyToAddress | Should -Be $mockReplyToAddress
+            #             $getTargetResourceResult.Description | Should -Be $mockDescription
+            #             $getTargetResourceResult.TcpPort | Should -Be $mockTcpPort
+
+            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+            #         }
+            #     }
+            # }
+
+            # (optional) Verifies that all mocks in the context was called.
             Assert-VerifiableMock
         }
 
@@ -331,7 +323,7 @@ try
             BeforeEach {
                 Mock -CommandName Connect-SQL -MockWith $mockConnectSQL -Verifiable
 
-                $testTargetResourceParameters = $mockDefaultParameters.Clone()
+                $testTargetResourceParameters = $defaultParameters.Clone()
             }
 
             Context 'When the system is in the desired state' {
@@ -496,7 +488,7 @@ try
                     $TypeName -eq 'Microsoft.SqlServer.Management.SMO.Mail.MailProfile'
                 } -Verifiable
 
-                $setTargetResourceParameters = $mockDefaultParameters.Clone()
+                $setTargetResourceParameters = $defaultParameters.Clone()
 
                 $script:MailAccountCreateMethodCallCount = 0
                 $script:MailServerRenameMethodCallCount = 0

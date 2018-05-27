@@ -54,8 +54,8 @@ function Get-TargetResource
     # Using -Force to find hidden folders.
     $folder = Get-Item -Path $Path -Force -ErrorAction 'SilentlyContinue' |
         Where-Object -FilterScript {
-        $_.PSIsContainer -eq $true
-    }
+            $_.PSIsContainer -eq $true
+        }
 
     if ($folder)
     {
