@@ -80,6 +80,10 @@ try
                 $resourceCurrentState.EnableSharing | Should -Be $false
                 $resourceCurrentState.ShareName | Should -BeNullOrEmpty
             }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration | Should -Be $true
+            }
         }
 
         $configurationName = "$($script:DSCResourceName)_Remove_Config"
@@ -126,6 +130,10 @@ try
                 $resourceCurrentState.Hidden | Should -Be $false
                 $resourceCurrentState.EnableSharing | Should -Be $false
                 $resourceCurrentState.ShareName | Should -BeNullOrEmpty
+            }
+
+            It 'Should return $true when Test-DscConfiguration is run' {
+                Test-DscConfiguration | Should -Be $true
             }
         }
     }
