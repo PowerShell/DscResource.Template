@@ -34,14 +34,7 @@ try
     $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
     . $configFile
 
-    $mockPath = $ConfigurationData.AllNodes.Path
-    $mockReadOnly = $ConfigurationData.AllNodes.ReadOnly
-
     Describe "$($script:DSCResourceName)_Integration" {
-        BeforeAll {
-            $resourceId = "[$($script:DSCResourceFriendlyName)]Integration_Test"
-        }
-
         $configurationName = "$($script:DSCResourceName)_Create_Config"
 
         Context ('When using configuration {0}' -f $configurationName) {
@@ -78,12 +71,12 @@ try
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName
                 } | Where-Object -FilterScript {
-                    $_.ResourceId -eq $resourceId
+                    $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Present'
-                $resourceCurrentState.Path | Should -Be $mockPath
-                $resourceCurrentState.ReadOnly | Should -Be $mockReadOnly
+                $resourceCurrentState.Path | Should -Be $ConfigurationData.AllNodes.Path
+                $resourceCurrentState.ReadOnly | Should -Be $ConfigurationData.AllNodes.ReadOnly
                 $resourceCurrentState.Hidden | Should -Be $false
                 $resourceCurrentState.EnableSharing | Should -Be $false
                 $resourceCurrentState.ShareName | Should -BeNullOrEmpty
@@ -126,11 +119,11 @@ try
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName
                 } | Where-Object -FilterScript {
-                    $_.ResourceId -eq $resourceId
+                    $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Absent'
-                $resourceCurrentState.Path | Should -Be $mockPath
+                $resourceCurrentState.Path | Should -Be $ConfigurationData.AllNodes.Path
                 $resourceCurrentState.ReadOnly | Should -Be $false
                 $resourceCurrentState.Hidden | Should -Be $false
                 $resourceCurrentState.EnableSharing | Should -Be $false
