@@ -69,9 +69,8 @@ try
 
             It 'Should have set the resource and all the parameters should match' {
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
-                    $_.ConfigurationName -eq $configurationName
-                } | Where-Object -FilterScript {
-                    $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
+                    $_.ConfigurationName -eq $configurationName `
+                    -and $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Present'
@@ -117,9 +116,8 @@ try
 
             It 'Should have set the resource and all the parameters should match' {
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
-                    $_.ConfigurationName -eq $configurationName
-                } | Where-Object -FilterScript {
-                    $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
+                    $_.ConfigurationName -eq $configurationName `
+                    -and $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Absent'
