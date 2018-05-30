@@ -1,6 +1,6 @@
 # Examples
 
-This will help to understand how to setup certain scenarios with the {ResourceModuleDsc} resource module.
+This will help to understand how to setup certain scenarios with the DscResource.Template resource module.
 
 ## Resource examples
 
