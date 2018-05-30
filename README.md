@@ -108,4 +108,4 @@ Example resource to manage a folder on Windows.
 
 #### Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+Folder).
+All issues are not listed here, see [here for all open issues](https://github.com/johlju/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Folder).
