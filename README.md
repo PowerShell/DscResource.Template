@@ -73,14 +73,12 @@ A full list of changes in each version can be found in the [change log](CHANGELO
 
 ## Resources
 
-* [**Folder**](#folder) resource
-  to manage SQL Server Database Mail.
+* [**Folder**](#folder) example resource
+  to manage a folder on Windows.
 
 ### Folder
 
-Resource to manage SQL Server Database Mail.
-
->**Note:** Database Mail XPs can be enabled using the resource SqlServerConfiguration.
+Example resource to manage a folder on Windows.
 
 #### Requirements
 
