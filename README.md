@@ -13,7 +13,7 @@ questions or comments.
 
 ### master
 
-[![Build status](https://ci.appveyor.com/api/projects/status/csmbpuwy8krymv05/branch/master?svg=true)](https://ci.appveyor.com/project/johlju/DscResource-Template/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/vqviwd2mmclxeopb/branch/master?svg=true)](https://ci.appveyor.com/project/johlju/DscResource-Template/branch/master)
 [![codecov](https://codecov.io/gh/johlju/DscResource.Template/branch/master/graph/badge.svg)](https://codecov.io/gh/johlju/DscResource.Template/branch/master)
 
 This is the branch containing the latest release -
@@ -21,7 +21,7 @@ no contributions should be made directly to this branch.
 
 ### dev
 
-[![Build status](https://ci.appveyor.com/api/projects/status/csmbpuwy8krymv05/branch/dev?svg=true)](https://ci.appveyor.com/project/johlju/DscResource-Template/branch/dev)
+[![Build status](https://ci.appveyor.com/api/projects/status/vqviwd2mmclxeopb/branch/dev?svg=true)](https://ci.appveyor.com/project/johlju/DscResource-Template/branch/dev)
 [![codecov](https://codecov.io/gh/johlju/DscResource.Template/branch/dev/graph/badge.svg)](https://codecov.io/gh/johlju/DscResource.Template/branch/dev)
 
 This is the development branch
