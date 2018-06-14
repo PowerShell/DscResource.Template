@@ -40,8 +40,7 @@ test_script:
         # TODO:
         # To use -CodeCovIo parameter, the repository need to connected
         # to Codecov (see https://codecov.io/).
-        Write-Verbose -Message "Branch: $env:APPVEYOR_REPO_BRANCH" -Verbose
-        Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo -ExcludeTag @()
+        #Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo -ExcludeTag @()
 
 #---------------------------------#
 #      deployment configuration   #
@@ -50,4 +49,5 @@ test_script:
 # scripts to run before deployment
 deploy_script:
     - ps: |
+        Write-Verbose -Message "Branch: $env:APPVEYOR_REPO_BRANCH" -Verbose
         Invoke-AppveyorAfterTestTask
