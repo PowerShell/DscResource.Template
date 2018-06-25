@@ -13,6 +13,15 @@
 #---------------------------------#
 
 version: 1.0.{build}.0 # TODO: Modify version so it fits your versioning.
+
+environment:
+  gallery_api:
+    secure: uwd5h4xufRG6/4wEOUIrdEeTkXYIiLFydKXhP5ZKv5j8rR2acKOHrsL7c2UoYmZQ
+
+init:
+  # Needed for publishing of examples, build worker defaults to core.autocrlf=input.
+  - git config --global core.autocrlf true
+
 install:
     - ps: |
         # This is workaround for AppVeyor replaces '.' with '-' in the folder name.
@@ -40,14 +49,18 @@ test_script:
         # TODO:
         # To use -CodeCovIo parameter, the repository need to connected
         # to Codecov (see https://codecov.io/).
-        #Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo -ExcludeTag @()
+        Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo -ExcludeTag @()
+
+# scripts to run before deployment.
+after_test:
+    - ps: |
+        Write-Verbose -Message "Branch: $env:APPVEYOR_REPO_BRANCH" -Verbose
+        Invoke-AppveyorAfterTestTask
 
 #---------------------------------#
 #      deployment configuration   #
 #---------------------------------#
 
-# scripts to run before deployment
 deploy_script:
-    - ps: |
-        Write-Verbose -Message "Branch: $env:APPVEYOR_REPO_BRANCH" -Verbose
-        Invoke-AppveyorAfterTestTask
+  - ps: |
+        Invoke-AppVeyorDeployTask
