@@ -21,9 +21,9 @@ $script:DSCResourceName = 'MSFT_Folder'
 # Unit Test Template Version: 1.3.0
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone','https://github.com/PowerShell/DscResource.Tests.git',(Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
 }
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
@@ -39,7 +39,7 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 function Invoke-TestSetup
 {
-     # TODO: Optional init code goes here...
+    # TODO: Optional init code goes here...
 }
 
 function Invoke-TestCleanup
@@ -74,17 +74,12 @@ try
         Describe "MSFT_Folder\Get-TargetResource" -Tag 'Get' {
             BeforeAll {
                 $defaultParameters = @{
-                    Path = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
+                    Path     = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
                     ReadOnly = $false
                 }
 
                 # Per describe-block initialization
                 $script:mockFolderObject = New-Item -Path $defaultParameters.Path -ItemType 'Directory' -Force
-            }
-
-            AfterAll {
-                # Per describe-block cleanup
-                #Remove-Item -Path $defaultParameters.Path -Force
             }
 
             BeforeEach {
@@ -93,13 +88,12 @@ try
                 $getTargetResourceParameters = $defaultParameters.Clone()
             }
 
-            AfterEach {
-                # per test cleanup within the describe-block
-            }
-
-            Context 'When the system is in the desired state' {
+            Context 'When the configuration is absent' {
                 BeforeAll {
                     # Per context-block initialization
+                    Mock -CommandName Get-Item -MockWith {
+                        return $null
+                    } -Verifiable
                 }
 
                 AfterAll {
@@ -114,7 +108,113 @@ try
                     # per test cleanup
                 }
 
-                Context 'When the configuration is absent' {
+                It 'Should return the state as absent' {
+                    # test-code
+                    $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+                    $getTargetResourceResult.Ensure | Should -Be 'Absent'
+
+                    Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
+                }
+
+                It 'Should return the same values as passed as parameters' {
+                    # test-code
+                    $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+                    $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
+                    $getTargetResourceResult.ReadOnly | Should -Be $getTargetResourceParameters.ReadOnly
+                }
+
+                It 'Should return $false or $null respectively for the rest of the properties' {
+                    # test-code
+                    $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+                    $getTargetResourceResult.Hidden | Should -Be $false
+                    $getTargetResourceResult.EnableSharing | Should -Be $false
+                    $getTargetResourceResult.ShareName | Should -BeNullOrEmpty
+                }
+            }
+
+            Context 'When the configuration is present' {
+                BeforeAll {
+                    # Per context-block initialization
+                    Mock -CommandName Get-Item -MockWith {
+                        return $script:mockFolderObject
+                    }
+
+                    $testCase = @(
+                        @{
+                            EnableSharing = $false
+                        },
+                        @{
+                            EnableSharing = $true
+                        }
+                    )
+                }
+
+                AfterAll {
+                    # Per context-block cleanup
+                }
+
+                BeforeEach {
+                    # per test initialization
+                    Mock -CommandName Get-SmbShare -MockWith {
+                        return @{
+                            # This is using the parameter from the test case.
+                            Path = $EnableSharing
+                        }
+                    }
+                }
+
+                AfterEach {
+                    # per test cleanup
+                }
+
+                It 'Should return the state as present' {
+                    # test-code
+                    $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+                    $getTargetResourceResult.Ensure | Should -Be 'Present'
+
+                    Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
+                }
+
+                It 'Should return the same values as passed as parameters' {
+                    $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+                    $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
+                }
+
+                It 'Should return the correct values when EnableSharing is <EnableSharing>' -TestCases $testCase {
+                    param
+                    (
+                        # EnableSharing
+                        [Parameter(Mandatory = $true)]
+                        [System.Boolean]
+                        $EnableSharing
+                    )
+
+                    $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+                    $getTargetResourceResult.EnableSharing | Should -Be $EnableSharing
+
+                    Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
+                }
+            }
+        }
+
+        Describe "MSFT_SqlServerDatabaseMail\Test-TargetResource" -Tag 'Test' {
+            BeforeAll {
+                # Per describe-block initialization
+                $defaultParameters = @{
+                    Path     = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
+                    ReadOnly = $false
+                }
+
+                $script:mockFolderObject = New-Item -Path $defaultParameters.Path -ItemType 'Directory' -Force
+            }
+
+            BeforeEach {
+                # per test initialization within the describe-block
+                $testTargetResourceParameters = $defaultParameters.Clone()
+            }
+
+            Context 'When the system is in the desired state' {
+                Context 'When the configuration are absent' {
                     BeforeAll {
                         # Per context-block initialization
                         Mock -CommandName Get-Item -MockWith {
@@ -122,351 +222,175 @@ try
                         } -Verifiable
                     }
 
-                    AfterAll {
-                        # Per context-block cleanup
-                    }
-
                     BeforeEach {
                         # per test initialization
+                        $testTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
-                    AfterEach {
-                        # per test cleanup
-                    }
-
-                    It 'Should return the state as absent' {
+                    It 'Should return the $true' {
                         # test-code
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.Ensure | Should -Be 'Absent'
+                        $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
+                        $testTargetResourceResult | Should -Be $true
 
                         Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
                     }
-
-                    It 'Should return the same values as passed as parameters' {
-                        # test-code
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
-                        $getTargetResourceResult.ReadOnly | Should -Be $getTargetResourceParameters.ReadOnly
-                  }
-
-                    It 'Should return $false or $null respectively for the rest of the properties' {
-                        # test-code
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.Hidden | Should -Be $false
-                        $getTargetResourceResult.EnableSharing | Should -Be $false
-                        $getTargetResourceResult.ShareName | Should -BeNullOrEmpty
-                    }
                 }
 
-                Context 'When the configuration is present' {
+                Context 'When the configuration are present' {
                     BeforeAll {
                         # Per context-block initialization
-                        Mock -CommandName Get-Item -MockWith {
-                            return $script:mockFolderObject
+                        $mockGetTargetResource = @{
+                            Ensure = 'Present'
+                            ReadOnly = $true
+                            Hidden = $true
+                            EnableSharing = $true
+                            ShareName = 'TestShare'
                         }
 
-                        $testCase = @(
-                            @{
-                                EnableSharing = $false
-                            },
-                            @{
-                                EnableSharing = $true
-                            }
-                        )
-                    }
-
-                    AfterAll {
-                        # Per context-block cleanup
+                        Mock -CommandName Get-TargetResource -MockWith {
+                            return $mockGetTargetResource
+                        } -Verifiable
                     }
 
                     BeforeEach {
                         # per test initialization
-                        Mock -CommandName Get-SmbShare -MockWith {
-                            return @{
-                                # This is using the parameter from the test case.
-                                Path = $EnableSharing
-                            }
-                        }
+                        $testTargetResourceParameters['Ensure'] = 'Present'
+                        $testTargetResourceParameters['ReadOnly'] = $true
+                        $testTargetResourceParameters['Hidden'] = $true
+                        $testTargetResourceParameters['EnableSharing'] = $true
                     }
 
-                    AfterEach {
-                        # per test cleanup
-                    }
-
-                    It 'Should return the state as present' {
+                    It 'Should return the $true' {
                         # test-code
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.Ensure | Should -Be 'Present'
-
-                        Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
-                    }
-
-                    It 'Should return the same values as passed as parameters' {
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
-                    }
-
-                    It 'Should return the correct values when EnableSharing is ''<EnableSharing>''' -TestCases $testCase {
-                        param
-                        (
-                            # EnableSharing
-                            [Parameter(Mandatory = $true)]
-                            [System.Boolean]
-                            $EnableSharing
-                        )
-                        $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                        $getTargetResourceResult.EnableSharing | Should -Be $EnableSharing
-
-                        Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
-                    }
-                }
-            }
-
-            # Context 'When the system is not in the desired state' {
-            #     BeforeAll {
-            #         # Per context-block initialization
-            #     }
-
-            #     BeforeAll {
-            #         # Per context-block cleanup
-            #     }
-
-            #     Context 'When the configuration is absent' {
-            #         BeforeEach {
-            #             # per-test-initialization
-            #         }
-
-            #         AfterEach {
-            #             # per-test-cleanup
-            #         }
-
-            #         It 'Should return the state as absent' {
-            #             # test-code
-            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-            #             $getTargetResourceResult.Ensure | Should -Be 'Absent'
-
-            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-            #         }
-
-            #         It 'Should return the same values as passed as parameters' {
-            #             # test-code
-            #             $result = Get-TargetResource @getTargetResourceParameters
-            #             $result.ServerName | Should -Be $getTargetResourceParameters.ServerName
-            #             $result.InstanceName | Should -Be $getTargetResourceParameters.InstanceName
-
-            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-            #         }
-
-            #         It 'Should return $null for the rest of the properties' {
-            #             # test-code
-            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-            #             $getTargetResourceResult.AccountName | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.EmailAddress | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.MailServerName | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.LoggingLevel | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.ProfileName | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.DisplayName | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.ReplyToAddress | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.Description | Should -BeNullOrEmpty
-            #             $getTargetResourceResult.TcpPort | Should -BeNullOrEmpty
-
-            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-            #         }
-            #     }
-
-            #     Context 'When the configuration is present' {
-            #         It 'Should return the state as present' {
-            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-            #             $getTargetResourceResult.Ensure | Should -Be 'Present'
-
-            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-            #         }
-
-            #         It 'Should return the same values as passed as parameters' {
-            #             $result = Get-TargetResource @getTargetResourceParameters
-            #             $result.ServerName | Should -Be $getTargetResourceParameters.ServerName
-            #             $result.InstanceName | Should -Be $getTargetResourceParameters.InstanceName
-
-            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-            #         }
-
-            #         It 'Should return the correct values for the rest of the properties' {
-            #             $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-            #             $getTargetResourceResult.AccountName | Should -Be $mockAccountName
-            #             $getTargetResourceResult.EmailAddress | Should -Be $mockEmailAddress
-            #             $getTargetResourceResult.MailServerName | Should -Be $mockMailServerName
-            #             $getTargetResourceResult.LoggingLevel | Should -Be $mockLoggingLevelExtended
-            #             $getTargetResourceResult.ProfileName | Should -Be $mockProfileName
-            #             $getTargetResourceResult.DisplayName | Should -Be $mockDisplayName
-            #             $getTargetResourceResult.ReplyToAddress | Should -Be $mockReplyToAddress
-            #             $getTargetResourceResult.Description | Should -Be $mockDescription
-            #             $getTargetResourceResult.TcpPort | Should -Be $mockTcpPort
-
-            #             Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-            #         }
-            #     }
-            # }
-
-            # (optional) Verifies that all mocks in the context was called.
-            Assert-VerifiableMock
-        }
-
-        Describe "MSFT_SqlServerDatabaseMail\Test-TargetResource" -Tag 'Test' {
-            BeforeAll {
-                $mockDynamicDatabaseMailEnabledRunValue = $mockDatabaseMailEnabledConfigValue
-                $mockDynamicLoggingLevelValue = $mockLoggingLevelExtendedValue
-                $mockDynamicDescription = $mockDescription
-                $mockDynamicAgentMailType = $mockAgentMailTypeDatabaseMail
-                $mockDynamicDatabaseMailProfile = $mockProfileName
-            }
-
-            BeforeEach {
-                Mock -CommandName Connect-SQL -MockWith $mockConnectSQL -Verifiable
-
-                $testTargetResourceParameters = $defaultParameters.Clone()
-            }
-
-            Context 'When the system is in the desired state' {
-                Context 'When the configuration is absent' {
-                    BeforeEach {
-                        $testTargetResourceParameters['Ensure'] = 'Absent'
-                        $testTargetResourceParameters['AccountName'] = $mockMissingAccountName
-                    }
-
-                    It 'Should return the state as $true' {
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $true
 
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+                        Assert-MockCalled Get-TargetResource -Exactly -Times 1 -Scope It
                     }
                 }
 
-                Context 'When the configuration is present' {
-                    BeforeEach {
-                        $testTargetResourceParameters['DisplayName'] = $mockDisplayName
-                        $testTargetResourceParameters['ReplyToAddress'] = $mockReplyToAddress
-                        $testTargetResourceParameters['Description'] = $mockDescription
-                        $testTargetResourceParameters['LoggingLevel'] = $mockLoggingLevelExtended
-                        $testTargetResourceParameters['TcpPort'] = $mockTcpPort
-                    }
-
-                    It 'Should return the state as $true' {
-                        $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
-                        $testTargetResourceResult | Should -Be $true
-
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                    }
-                }
+                Assert-VerifiableMock
             }
 
             Context 'When the system is not in the desired state' {
                 Context 'When the configuration should be absent' {
                     BeforeEach {
+                        # per test initialization
                         $testTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
-                    It 'Should return the state as $false' {
+                    It 'Should return the $true' {
+                        # test-code
+                        Mock -CommandName Get-TargetResource -MockWith {
+                            return @{
+                                Ensure = 'Present'
+                            }
+                        } -Verifiable
+
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $false
-
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
                     }
                 }
 
                 Context 'When the configuration should be present' {
-                    $defaultTestCase = @{
-                        AccountName    = $mockAccountName
-                        EmailAddress   = $mockEmailAddress
-                        MailServerName = $mockMailServerName
-                        ProfileName    = $mockProfileName
-                        DisplayName    = $mockDisplayName
-                        ReplyToAddress = $mockReplyToAddress
-                        Description    = $mockDescription
-                        LoggingLevel   = $mockLoggingLevelExtended
-                        TcpPort        = $mockTcpPort
+                    BeforeAll {
+                        # Per context-block initialization
+                        $testCase = @(
+                            @{
+                                Path          = (Join-Path -Path $TestDrive -ChildPath 'FolderTestReadOnly')
+                                ReadOnly      = $true
+                                Hidden        = $false
+                                EnableSharing = $false
+                                ShareName     = $null
+                            },
+                            @{
+                                Path          = (Join-Path -Path $TestDrive -ChildPath 'FolderTestHidden')
+                                ReadOnly      = $false
+                                Hidden        = $true
+                                EnableSharing = $false
+                                ShareName     = $null
+                            },
+                            @{
+                                Path          = (Join-Path -Path $TestDrive -ChildPath 'FolderTestShare')
+                                ReadOnly      = $false
+                                Hidden        = $false
+                                EnableSharing = $true
+                                ShareName     = 'TestShare'
+                            }
+                        )
                     }
 
-                    $testCaseAccountNameIsMissing = $defaultTestCase.Clone()
-                    $testCaseAccountNameIsMissing['TestName'] = 'AccountName is missing'
-                    $testCaseAccountNameIsMissing['AccountName'] = 'MissingAccountName'
+                    BeforeEach {
+                        # per test initialization
+                        $testTargetResourceParameters['Ensure'] = 'Present'
+                    }
 
-                    $testCaseEmailAddressIsWrong = $defaultTestCase.Clone()
-                    $testCaseEmailAddressIsWrong['TestName'] = 'EmailAddress is wrong'
-                    $testCaseEmailAddressIsWrong['EmailAddress'] = 'wrong@email.address'
-
-                    $testCaseMailServerNameIsWrong = $defaultTestCase.Clone()
-                    $testCaseMailServerNameIsWrong['TestName'] = 'MailServerName is wrong'
-                    $testCaseMailServerNameIsWrong['MailServerName'] = 'smtp.contoso.com'
-
-                    $testCaseProfileNameIsWrong = $defaultTestCase.Clone()
-                    $testCaseProfileNameIsWrong['TestName'] = 'ProfileName is wrong'
-                    $testCaseProfileNameIsWrong['ProfileName'] = 'NewProfile'
-
-                    $testCaseDisplayNameIsWrong = $defaultTestCase.Clone()
-                    $testCaseDisplayNameIsWrong['TestName'] = 'DisplayName is wrong'
-                    $testCaseDisplayNameIsWrong['DisplayName'] = 'New display name'
-
-                    $testCaseReplyToAddressIsWrong = $defaultTestCase.Clone()
-                    $testCaseReplyToAddressIsWrong['TestName'] = 'ReplyToAddress is wrong'
-                    $testCaseReplyToAddressIsWrong['ReplyToAddress'] = 'new-reply@email.address'
-
-                    $testCaseDescriptionIsWrong = $defaultTestCase.Clone()
-                    $testCaseDescriptionIsWrong['TestName'] = 'Description is wrong'
-                    $testCaseDescriptionIsWrong['Description'] = 'New description'
-
-                    $testCaseLoggingLevelIsWrong = $defaultTestCase.Clone()
-                    $testCaseLoggingLevelIsWrong['TestName'] = 'LoggingLevel is wrong'
-                    $testCaseLoggingLevelIsWrong['LoggingLevel'] = $mockLoggingLevelNormal
-
-                    $testCaseTcpPortIsWrong = $defaultTestCase.Clone()
-                    $testCaseTcpPortIsWrong['TestName'] = 'TcpPort is wrong'
-                    $testCaseTcpPortIsWrong['TcpPort'] = 2525
-
-                    $testCases = @(
-                        $testCaseAccountNameIsMissing
-                        $testCaseEmailAddressIsWrong
-                        $testCaseMailServerNameIsWrong
-                        $testCaseProfileNameIsWrong
-                        $testCaseDisplayNameIsWrong
-                        $testCaseReplyToAddressIsWrong
-                        $testCaseDescriptionIsWrong
-                        $testCaseLoggingLevelIsWrong
-                        $testCaseTcpPortIsWrong
-                    )
-
-                    It 'Should return the state as $false when <TestName>' -TestCases $testCases {
-                        param
-                        (
-                            $AccountName,
-                            $EmailAddress,
-                            $MailServerName,
-                            $ProfileName,
-                            $DisplayName,
-                            $ReplyToAddress,
-                            $Description,
-                            $LoggingLevel,
-                            $TcpPort
-                        )
-
-                        $testTargetResourceParameters['AccountName'] = $AccountName
-                        $testTargetResourceParameters['EmailAddress'] = $EmailAddress
-                        $testTargetResourceParameters['MailServerName'] = $MailServerName
-                        $testTargetResourceParameters['ProfileName'] = $ProfileName
-                        $testTargetResourceParameters['DisplayName'] = $DisplayName
-                        $testTargetResourceParameters['ReplyToAddress'] = $ReplyToAddress
-                        $testTargetResourceParameters['Description'] = $Description
-                        $testTargetResourceParameters['LoggingLevel'] = $LoggingLevel
-                        $testTargetResourceParameters['TcpPort'] = $TcpPort
+                    It 'Should return the $true' {
+                        # test-code
+                        Mock -CommandName Get-TargetResource -MockWith {
+                            return @{
+                                Ensure = 'Absent'
+                                ReadOnly = $false
+                            }
+                        } -Verifiable
 
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $false
+                    }
 
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+                    It 'Should return $false when ReadOnly is <ReadOnly>, Hidden is <Hidden>, and EnableSharing is <EnableSharing>' -TestCases $testCase {
+                        param
+                        (
+                            # EnableSharing
+                            [Parameter(Mandatory = $true)]
+                            [System.String]
+                            $Path,
+
+                            # EnableSharing
+                            [Parameter(Mandatory = $true)]
+                            [System.Boolean]
+                            $ReadOnly,
+
+                            # EnableSharing
+                            [Parameter()]
+                            [System.Boolean]
+                            $Hidden,
+
+                            # EnableSharing
+                            [Parameter()]
+                            [System.Boolean]
+                            $EnableSharing,
+
+                            # EnableSharing
+                            [Parameter()]
+                            [System.String]
+                            $ShareName
+                        )
+
+                        $mockGetTargetResource = @{
+                            Ensure = 'Present'
+                            Path = $Path
+                            ReadOnly = $ReadOnly
+                            Hidden = $Hidden
+                            EnableSharing = $EnableSharing
+                            ShareName = $ShareName
+                        }
+
+                        Mock -CommandName Get-TargetResource -MockWith {
+                            return $mockGetTargetResource
+                        } -Verifiable
+
+                        $testTargetResourceParameters['ReadOnly'] = $false
+                        $testTargetResourceParameters['Hidden'] = $false
+                        $testTargetResourceParameters['EnableSharing'] = $false
+
+                        $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
+                        $testTargetResourceResult | Should -Be $false
                     }
                 }
-            }
 
-            Assert-VerifiableMock
+                Assert-VerifiableMock
+            }
         }
 
         Describe "MSFT_SqlServerDatabaseMail\Set-TargetResource" -Tag 'Set' {

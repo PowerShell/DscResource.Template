@@ -2,7 +2,7 @@
 $script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
 $script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
 
-Import-Module -Name (Join-Path -Path $script:modulesFolderPath -ChildPath 'CommonResourceHelper.psm1')
+Import-Module -Name (Join-Path -Path $script:modulesFolderPath -ChildPath 'CommonResourceHelper.psm1') -Force
 
 InModuleScope 'CommonResourceHelper' {
     Describe 'CommonResourceHelper\Get-LocalizedData' {
@@ -199,8 +199,8 @@ Describe 'CommonResourceHelper\Test-DscParameterState' -Tag TestDscParameterStat
         }
 
         It 'Should return false when a value is different for [System.String]' {
-            $mockCurrentValues = @{ Example = [System.String]'something' }
-            $mockDesiredValues = @{ Example = [System.String]'test' }
+            $mockCurrentValues = @{ Example = [System.String] 'something' }
+            $mockDesiredValues = @{ Example = [System.String] 'test' }
 
             $testParameters = @{
                 CurrentValues = $mockCurrentValues
@@ -211,8 +211,8 @@ Describe 'CommonResourceHelper\Test-DscParameterState' -Tag TestDscParameterStat
         }
 
         It 'Should return false when a value is different for [System.Int32]' {
-            $mockCurrentValues = @{ Example = [System.Int32]1 }
-            $mockDesiredValues = @{ Example = [System.Int32]2 }
+            $mockCurrentValues = @{ Example = [System.Int32] 1 }
+            $mockDesiredValues = @{ Example = [System.Int32] 2 }
 
             $testParameters = @{
                 CurrentValues = $mockCurrentValues
@@ -223,8 +223,8 @@ Describe 'CommonResourceHelper\Test-DscParameterState' -Tag TestDscParameterStat
         }
 
         It 'Should return false when a value is different for [Int16]' {
-            $mockCurrentValues = @{ Example = [System.Int16]1 }
-            $mockDesiredValues = @{ Example = [System.Int16]2 }
+            $mockCurrentValues = @{ Example = [System.Int16] 1 }
+            $mockDesiredValues = @{ Example = [System.Int16] 2 }
 
             $testParameters = @{
                 CurrentValues = $mockCurrentValues
@@ -235,8 +235,20 @@ Describe 'CommonResourceHelper\Test-DscParameterState' -Tag TestDscParameterStat
         }
 
         It 'Should return false when a value is different for [UInt16]' {
-            $mockCurrentValues = @{ Example = [System.UInt16]1 }
-            $mockDesiredValues = @{ Example = [System.UInt16]2 }
+            $mockCurrentValues = @{ Example = [System.UInt16] 1 }
+            $mockDesiredValues = @{ Example = [System.UInt16] 2 }
+
+            $testParameters = @{
+                CurrentValues = $mockCurrentValues
+                DesiredValues = $mockDesiredValues
+            }
+
+            Test-DscParameterState @testParameters | Should -Be $false
+        }
+
+        It 'Should return false when a value is different for [Boolean]' {
+            $mockCurrentValues = @{ Example = [System.Boolean] $true }
+            $mockDesiredValues = @{ Example = [System.Boolean] $false }
 
             $testParameters = @{
                 CurrentValues = $mockCurrentValues

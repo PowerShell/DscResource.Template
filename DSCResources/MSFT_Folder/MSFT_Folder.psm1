@@ -66,7 +66,7 @@ function Get-TargetResource
 
         $folderShare = Get-SmbShare |
             Where-Object -FilterScript {
-            $_.Path -eq 'C:\Temp'
+            $_.Path -eq $Path
         }
 
         # Cast the object to Boolean.
