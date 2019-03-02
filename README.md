@@ -112,9 +112,9 @@ Example resource to manage a folder on Windows.
 
 All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Folder).
 
-### {Resource2}
+### {ResourceName}
 
-{ Detailed description of resource 2. }
+{ Detailed description of ResourceName. }
 
 #### Requirements
 
@@ -125,17 +125,17 @@ run on Windows Server OS, must have Exchange already installed). }
 
 #### Parameters
 
-* {**`[String]` Property1** _(Key)_: Description of resource 2 property 1}
-* {**`[Boolean]` Property2** _(Required)_: Description of resource 2 property 2}
+* {**`[String]` Property1** _(Key)_: Description of ResourceName property 1}
+* {**`[Boolean]` Property2** _(Required)_: Description of ResourceName property 2}
 
 #### Read-Only Properties from Get-TargetResource
 
-* {**`[Boolean]` Property3** _(Write)_: Description of resource 2 property 2}
+* {**`[Boolean]` Property3** _(Write)_: Description of ResourceName property 2}
 
 #### Examples
 
-* { Add links to the examples }
+* { Add links to the examples for the resource ResourceName }
 
 #### Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Resource2).
+All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+ResourceName).
