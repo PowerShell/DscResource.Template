@@ -5,7 +5,8 @@
 
 Configuration Example
 {
-    Import-DscResource -ModuleName <ResourceModule>
+    # TODO: Change 'DscResource.Template' to the correct module name.
+    Import-DscResource -ModuleName 'DscResource.Template'
 
     Node $AllNodes.NodeName
     {
