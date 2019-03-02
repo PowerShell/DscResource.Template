@@ -2,15 +2,14 @@
 [Microsoft.DscResourceKit.IntegrationTest(OrderNumber = 1)]
 param()
 
-if (-not $env:APPVEYOR -eq $true)
+if (Test-SkipContinuousIntegrationTask -Type 'Integration')
 {
-    Write-Warning -Message ('Integration test for {0} will be skipped unless $env:APPVEYOR equals $true' -f $script:DSCResourceName)
     return
 }
 
-$script:DSCModuleName = 'DscResource.Template'
-$script:DSCResourceFriendlyName = 'Folder'
-$script:DSCResourceName = "MSFT_$($script:DSCResourceFriendlyName)"
+$script:dscModuleName = 'DscResource.Template'
+$script:dscResourceFriendlyName = 'Folder'
+$script:dcsResourceName = "MSFT_$($script:dscResourceFriendlyName)"
 
 #region HEADER
 # Integration Test Template Version: 1.3.1
