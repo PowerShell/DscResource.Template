@@ -1,0 +1,18 @@
+{
+    "ignorePaths": [
+        ".git/*",
+        ".vscode/*"
+    ],
+    "language": "en",
+    "dictionaries": [
+        "powershell"
+    ],
+    "words": [
+        "MSFT",
+        "markdownlint",
+        "Codecov"
+    ],
+    "ignoreRegExpList": [
+        "AppVeyor"
+    ]
+}

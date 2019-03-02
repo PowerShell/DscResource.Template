@@ -104,8 +104,10 @@ Example resource to manage a folder on Windows.
 
 #### Examples
 
-* [Create folder](/Examples/Resources/Folder/1-CreateFolder.ps1)
-* [Remove folder](/Examples/Resources/Folder/2-RemoveFolder.ps1)
+* [Create folder as SYSTEM](/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1)
+* [Create folder as user](/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1)
+* [Remove folder](/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1)
+
 
 #### Known issues
 
@@ -114,10 +116,6 @@ All issues are not listed here, see [here for all open issues](https://github.co
 ### {Resource2}
 
 { Detailed description of resource 2. }
-
-* {**Property1**: Description of resource 2 property 1.}
-* {**Property2**: Description of resource 2 property 2.}
-* ...
 
 #### Requirements
 
