@@ -8,25 +8,22 @@ best practices for DSC resource modules in
 >The resource in this repository is just to make sure common code works,
 >and used as a practical example.
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/)
-or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional
-questions or comments.
+This project has adopted [this code of conduct](CODE_OF_CONDUCT.md).
 
 ## Branches
 
 ### master
 
-[![Build status](https://ci.appveyor.com/api/projects/status/vqviwd2mmclxeopb/branch/master?svg=true)](https://ci.appveyor.com/project/johlju/DscResource-Template/branch/master)
-[![codecov](https://codecov.io/gh/johlju/DscResource.Template/branch/master/graph/badge.svg)](https://codecov.io/gh/johlju/DscResource.Template/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/vqviwd2mmclxeopb/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/DscResource-Template/branch/master)
+[![codecov](https://codecov.io/gh/PowerShell/DscResource.Template/branch/master/graph/badge.svg)](https://codecov.io/gh/PowerShell/DscResource.Template/branch/master)
 
 This is the branch containing the latest release -
 no contributions should be made directly to this branch.
 
 ### dev
 
-[![Build status](https://ci.appveyor.com/api/projects/status/vqviwd2mmclxeopb/branch/dev?svg=true)](https://ci.appveyor.com/project/johlju/DscResource-Template/branch/dev)
-[![codecov](https://codecov.io/gh/johlju/DscResource.Template/branch/dev/graph/badge.svg)](https://codecov.io/gh/johlju/DscResource.Template/branch/dev)
+[![Build status](https://ci.appveyor.com/api/projects/status/vqviwd2mmclxeopb/branch/dev?svg=true)](https://ci.appveyor.com/project/PowerShell/DscResource-Template/branch/dev)
+[![codecov](https://codecov.io/gh/PowerShell/DscResource.Template/branch/dev/graph/badge.svg)](https://codecov.io/gh/PowerShell/DscResource.Template/branch/dev)
 
 This is the development branch
 to which contributions should be proposed by contributors as pull requests.
@@ -79,6 +76,7 @@ A full list of changes in each version can be found in the [change log](CHANGELO
 
 * [**Folder**](#folder) example resource
   to manage a folder on Windows.
+* {**Resource2** One line description of resource 1}
 
 ### Folder
 
@@ -111,4 +109,36 @@ Example resource to manage a folder on Windows.
 
 #### Known issues
 
-All issues are not listed here, see [here for all open issues](https://github.com/johlju/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Folder).
+All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Folder).
+
+### {Resource2}
+
+{ Detailed description of resource 2. }
+
+* {**Property1**: Description of resource 2 property 1.}
+* {**Property2**: Description of resource 2 property 2.}
+* ...
+
+#### Requirements
+
+{ Please include any requirements for running this resource (e.g. Must
+run on Windows Server OS, must have Exchange already installed). }
+
+* Target machine must be running Windows Server 2008 R2 or later.
+
+#### Parameters
+
+* {**`[String]` Property1** _(Key)_: Description of resource 2 property 1}
+* {**`[Boolean]` Property2** _(Required)_: Description of resource 2 property 2}
+
+#### Read-Only Properties from Get-TargetResource
+
+* {**`[Boolean]` Property3** _(Write)_: Description of resource 2 property 2}
+
+#### Examples
+
+* { Add links to the examples }
+
+#### Known issues
+
+All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Resource2).
