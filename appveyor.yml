@@ -5,25 +5,29 @@
 # This template assumes you have connected your repository to AppVeyor
 # (https://ci.appveyor.com).
 #
-# Before using it in your repository, modify places marked with 'TODO:'.
+# Before using it in your repository, modify places marked with 'TODO:', and
+# then remove this comment block.
 ################################################################################
+
 
 #---------------------------------#
 #      environment configuration  #
 #---------------------------------#
 
 version: 1.0.{build}.0 # TODO: Modify version so it fits your versioning.
-
 environment:
   gallery_api:
-    secure: uwd5h4xufRG6/4wEOUIrdEeTkXYIiLFydKXhP5ZKv5j8rR2acKOHrsL7c2UoYmZQ
-
-init:
-  # Needed for publishing of examples, build worker defaults to core.autocrlf=input.
-  - git config --global core.autocrlf true
+    # TODO: Change to the correct API key if using PowerShell Gallery deploy task.
+    # If you wish to use this to publish your own module you'd need to set your
+    # own API key (encrypted by https://ci.appveyor.com/tools/encrypt).
+    #
+    # This API key can only be decrypted by the PowerShell Team's AppVeyor account,
+    # and can only be used for resource modules under the DSC Resource Kit.
+    secure: 9ekJzfsPCDBkyLrfmov83XbbhZ6E2N3z+B/Io8NbDetbHc6hWS19zsDmy7t0Vvxv
 
 install:
     - ps: |
+        # TODO: Remove these 4 rows.
         # This is workaround for AppVeyor replaces '.' with '-' in the folder name.
         Set-Location -Path 'C:\projects'
         Rename-Item -Path 'C:\projects\dscresource-template' -NewName 'DscResource.Template' -Force
@@ -31,7 +35,7 @@ install:
         Set-Location -Path $env:APPVEYOR_BUILD_FOLDER
     - git clone https://github.com/PowerShell/DscResource.Tests
     - ps: Write-Verbose -Message "PowerShell version $($PSVersionTable.PSVersion)" -Verbose
-    - ps: Import-Module "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
+    - ps: Import-Module -Name "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
     - ps: Invoke-AppveyorInstallTask
 
 #---------------------------------#
@@ -49,12 +53,12 @@ test_script:
         # TODO:
         # To use -CodeCovIo parameter, the repository need to connected
         # to Codecov (see https://codecov.io/).
-        Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo -ExcludeTag @()
+        Invoke-AppveyorTestScriptTask -CodeCoverage -CodeCovIo
 
-# scripts to run before deployment.
+# scripts to run before deployment
 after_test:
     - ps: |
-        Write-Verbose -Message "Branch: $env:APPVEYOR_REPO_BRANCH" -Verbose
+        Import-Module -Name "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
         Invoke-AppveyorAfterTestTask
 
 #---------------------------------#
