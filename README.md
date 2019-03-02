@@ -25,8 +25,8 @@ no contributions should be made directly to this branch.
 [![Build status](https://ci.appveyor.com/api/projects/status/vqviwd2mmclxeopb/branch/dev?svg=true)](https://ci.appveyor.com/project/PowerShell/DscResource-Template/branch/dev)
 [![codecov](https://codecov.io/gh/PowerShell/DscResource.Template/branch/dev/graph/badge.svg)](https://codecov.io/gh/PowerShell/DscResource.Template/branch/dev)
 
-This is the development branch
-to which contributions should be proposed by contributors as pull requests.
+This is the development branch to which contributions should be proposed
+by contributors as pull requests.
 This development branch will periodically be merged to the master branch,
 and be released to [PowerShell Gallery](https://www.powershellgallery.com/).
 
