@@ -2,31 +2,30 @@
 [Microsoft.DscResourceKit.IntegrationTest(OrderNumber = 1)]
 param()
 
-$script:DSCModuleName = 'DscResource.Template'
-$script:DSCResourceFriendlyName = 'Folder'
-$script:DSCResourceName = "MSFT_$($script:DSCResourceFriendlyName)"
-
 if (-not $env:APPVEYOR -eq $true)
 {
     Write-Warning -Message ('Integration test for {0} will be skipped unless $env:APPVEYOR equals $true' -f $script:DSCResourceName)
     return
 }
 
+$script:DSCModuleName = 'DscResource.Template'
+$script:DSCResourceFriendlyName = 'Folder'
+$script:DSCResourceName = "MSFT_$($script:DSCResourceFriendlyName)"
+
 #region HEADER
-# Integration Test Template Version: 1.2.1
-[System.String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+# Integration Test Template Version: 1.3.1
+[String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DscResource.Tests'))
 }
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dcsResourceName `
     -TestType Integration
-
 #endregion
 
 try
@@ -70,7 +69,7 @@ try
             It 'Should have set the resource and all the parameters should match' {
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName `
-                    -and $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
+                    -and $_.ResourceId -eq "[$($script:dscResourceFriendlyName)]Integration_Test"
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Present'
@@ -82,7 +81,7 @@ try
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
-                Test-DscConfiguration | Should -Be $true
+                Test-DscConfiguration -Verbose | Should -Be $true
             }
         }
 
@@ -121,7 +120,7 @@ try
             It 'Should have set the resource and all the parameters should match' {
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName `
-                    -and $_.ResourceId -eq "[$($script:DSCResourceFriendlyName)]Integration_Test"
+                    -and $_.ResourceId -eq "[$($script:dscResourceFriendlyName)]Integration_Test"
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Absent'
@@ -133,7 +132,7 @@ try
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
-                Test-DscConfiguration | Should -Be $true
+                Test-DscConfiguration -Verbose | Should -Be $true
             }
         }
     }
@@ -141,8 +140,6 @@ try
 finally
 {
     #region FOOTER
-
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
-
     #endregion
 }

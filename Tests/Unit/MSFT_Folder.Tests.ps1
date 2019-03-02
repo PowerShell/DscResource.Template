@@ -1,34 +1,17 @@
-<#
-    .SYNOPSIS
-        Template for creating DSC Resource Unit Tests
-    .DESCRIPTION
-        To Use:
-        1. Copy to \Tests\Unit\ folder and rename <ResourceName>.tests.ps1 (e.g. MSFT_xFirewall.tests.ps1)
-        2. Customize TODO sections.
-        3. Delete all template comments (TODOs, etc.)
-    .NOTES
-        There are multiple methods for writing unit tests. This template provides a few examples
-        which you are welcome to follow but depending on your resource, you may want to
-        design it differently. Read through our TestsGuidelines.md file for an intro on how to
-        write unit tests for DSC resources: https://github.com/PowerShell/DscResources/blob/master/TestsGuidelines.md
-#>
-
 #region HEADER
-# TODO: Update to correct module name and resource name.
 $script:DSCModuleName = 'DscResource.Template'
 $script:DSCResourceName = 'MSFT_Folder'
 
-# Unit Test Template Version: 1.3.0
+# Unit Test Template Version: 1.2.4
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
-    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))
+    & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DscResource.Tests'))
 }
 
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 
-# TODO: Insert the correct <ModuleName> and <ResourceName> for your resource
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:DSCModuleName `
     -DSCResourceName $script:DSCResourceName `
@@ -39,14 +22,11 @@ $TestEnvironment = Initialize-TestEnvironment `
 
 function Invoke-TestSetup
 {
-    # TODO: Optional init code goes here...
 }
 
 function Invoke-TestCleanup
 {
     Restore-TestEnvironment -TestEnvironment $TestEnvironment
-
-    # TODO: Other Optional Cleanup Code Goes Here...
 }
 
 # Begin Testing
@@ -55,20 +35,6 @@ try
     Invoke-TestSetup
 
     InModuleScope $script:DSCResourceName {
-        <#
-            TODO: Optionally create any variables here for use by your tests
-
-            TODO: Optionally create any script blocks that will be used by mocks
-            in BeforeAll/BeforeEach to dynamically set variables.
-
-            TODO: Complete the Describe blocks below and add more as needed.
-            The most common method for unit testing is to test by function. For more information
-            check out this introduction to writing unit tests in Pester:
-            https://www.simple-talk.com/sysadmin/powershell/practical-powershell-unit-testing-getting-started/#eleventh
-            You may also follow one of the patterns provided in the TestsGuidelines.md file:
-            https://github.com/PowerShell/DscResources/blob/master/TestsGuidelines.md
-        #>
-
         $mockFolderObject = $null
 
         Describe "MSFT_Folder\Get-TargetResource" -Tag 'Get' {
@@ -78,38 +44,21 @@ try
                     ReadOnly = $false
                 }
 
-                # Per describe-block initialization
                 $script:mockFolderObject = New-Item -Path $defaultParameters.Path -ItemType 'Directory' -Force
             }
 
             BeforeEach {
-                # per test initialization within the describe-block
-
                 $getTargetResourceParameters = $defaultParameters.Clone()
             }
 
             Context 'When the configuration is absent' {
                 BeforeAll {
-                    # Per context-block initialization
                     Mock -CommandName Get-Item -MockWith {
                         return $null
                     } -Verifiable
                 }
 
-                AfterAll {
-                    # Per context-block cleanup
-                }
-
-                BeforeEach {
-                    # per test initialization
-                }
-
-                AfterEach {
-                    # per test cleanup
-                }
-
                 It 'Should return the state as absent' {
-                    # test-code
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Ensure | Should -Be 'Absent'
 
@@ -117,14 +66,12 @@ try
                 }
 
                 It 'Should return the same values as passed as parameters' {
-                    # test-code
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
                     $getTargetResourceResult.ReadOnly | Should -Be $getTargetResourceParameters.ReadOnly
                 }
 
                 It 'Should return $false or $null respectively for the rest of the properties' {
-                    # test-code
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Hidden | Should -Be $false
                     $getTargetResourceResult.EnableSharing | Should -Be $false
@@ -134,7 +81,6 @@ try
 
             Context 'When the configuration is present' {
                 BeforeAll {
-                    # Per context-block initialization
                     Mock -CommandName Get-Item -MockWith {
                         return $script:mockFolderObject
                     }
@@ -149,26 +95,15 @@ try
                     )
                 }
 
-                AfterAll {
-                    # Per context-block cleanup
-                }
-
                 BeforeEach {
-                    # per test initialization
                     Mock -CommandName Get-SmbShare -MockWith {
                         return @{
-                            # This is using the parameter from the test case.
                             Path = $EnableSharing
                         }
                     }
                 }
 
-                AfterEach {
-                    # per test cleanup
-                }
-
                 It 'Should return the state as present' {
-                    # test-code
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Ensure | Should -Be 'Present'
 
@@ -183,7 +118,6 @@ try
                 It 'Should return the correct values when EnableSharing is <EnableSharing>' -TestCases $testCase {
                     param
                     (
-                        # EnableSharing
                         [Parameter(Mandatory = $true)]
                         [System.Boolean]
                         $EnableSharing
@@ -199,7 +133,6 @@ try
 
         Describe "MSFT_SqlServerDatabaseMail\Test-TargetResource" -Tag 'Test' {
             BeforeAll {
-                # Per describe-block initialization
                 $defaultParameters = @{
                     Path     = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
                     ReadOnly = $false
@@ -209,26 +142,22 @@ try
             }
 
             BeforeEach {
-                # per test initialization within the describe-block
                 $testTargetResourceParameters = $defaultParameters.Clone()
             }
 
             Context 'When the system is in the desired state' {
                 Context 'When the configuration are absent' {
                     BeforeAll {
-                        # Per context-block initialization
                         Mock -CommandName Get-Item -MockWith {
                             return $null
                         } -Verifiable
                     }
 
                     BeforeEach {
-                        # per test initialization
                         $testTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
                     It 'Should return the $true' {
-                        # test-code
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $true
 
@@ -238,7 +167,6 @@ try
 
                 Context 'When the configuration are present' {
                     BeforeAll {
-                        # Per context-block initialization
                         $mockGetTargetResource = @{
                             Ensure = 'Present'
                             ReadOnly = $true
@@ -253,7 +181,6 @@ try
                     }
 
                     BeforeEach {
-                        # per test initialization
                         $testTargetResourceParameters['Ensure'] = 'Present'
                         $testTargetResourceParameters['ReadOnly'] = $true
                         $testTargetResourceParameters['Hidden'] = $true
@@ -261,7 +188,6 @@ try
                     }
 
                     It 'Should return the $true' {
-                        # test-code
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $true
 
@@ -275,12 +201,10 @@ try
             Context 'When the system is not in the desired state' {
                 Context 'When the configuration should be absent' {
                     BeforeEach {
-                        # per test initialization
                         $testTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
                     It 'Should return the $true' {
-                        # test-code
                         Mock -CommandName Get-TargetResource -MockWith {
                             return @{
                                 Ensure = 'Present'
@@ -294,7 +218,6 @@ try
 
                 Context 'When the configuration should be present' {
                     BeforeAll {
-                        # Per context-block initialization
                         $testCase = @(
                             @{
                                 Path          = (Join-Path -Path $TestDrive -ChildPath 'FolderTestReadOnly')
@@ -321,12 +244,10 @@ try
                     }
 
                     BeforeEach {
-                        # per test initialization
                         $testTargetResourceParameters['Ensure'] = 'Present'
                     }
 
                     It 'Should return the $true' {
-                        # test-code
                         Mock -CommandName Get-TargetResource -MockWith {
                             return @{
                                 Ensure = 'Absent'
@@ -341,27 +262,22 @@ try
                     It 'Should return $false when ReadOnly is <ReadOnly>, Hidden is <Hidden>, and EnableSharing is <EnableSharing>' -TestCases $testCase {
                         param
                         (
-                            # EnableSharing
                             [Parameter(Mandatory = $true)]
                             [System.String]
                             $Path,
 
-                            # EnableSharing
                             [Parameter(Mandatory = $true)]
                             [System.Boolean]
                             $ReadOnly,
 
-                            # EnableSharing
                             [Parameter()]
                             [System.Boolean]
                             $Hidden,
 
-                            # EnableSharing
                             [Parameter()]
                             [System.Boolean]
                             $EnableSharing,
 
-                            # EnableSharing
                             [Parameter()]
                             [System.String]
                             $ShareName
