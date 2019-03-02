@@ -10,6 +10,6 @@ ConvertFrom-StringData @'
     FolderNotFound = Folder was not found.
     CreateFolder = Creating folder '{0}'.
     EvaluateProperties = Evaluating properties of folder '{0}'.
-    SettingProperties = Setting properties to correct values.
+    SettingProperties = Setting properties to correct values of folder '{0}'.
     RemoveFolder = Removing folder '{0}'.
 '@

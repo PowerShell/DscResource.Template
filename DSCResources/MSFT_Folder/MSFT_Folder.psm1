@@ -146,26 +146,38 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
-        if ($getTargetResourceResult -eq 'Absent')
+        if ($getTargetResourceResult.Ensure -eq 'Absent')
         {
             Write-Verbose -Message (
                 $script:localizedData.CreateFolder `
                     -f $Path
             )
+
+            $folder = New-Item -Path $Path -ItemType 'Directory' -Force
         }
         else
         {
-            Write-Verbose -Message $script:localizedData.SettingProperties
+            $folder = Get-Item -Path $Path -Force
         }
+
+        Write-Verbose -Message (
+            $script:localizedData.SettingProperties `
+                -f $Path
+        )
+
+        Set-FileAttribute -Folder $folder -Attribute 'ReadOnly' -Enabled $ReadOnly
+        Set-FileAttribute -Folder $folder -Attribute 'Hidden' -Enabled $Hidden
     }
     else
     {
-        if ($getTargetResourceResult -eq 'Present')
+        if ($getTargetResourceResult.Ensure -eq 'Present')
         {
             Write-Verbose -Message (
                 $script:localizedData.RemoveFolder `
                     -f $Path
             )
+
+            Remove-Item -Path $Path -Force -ErrorAction Stop
         }
     }
 }
@@ -259,10 +271,11 @@ function Test-TargetResource
         Test if an attribute on a folder is present.
 
     .PARAMETER Folder
-        The folder that should be checked for the attribute.
+        The System.IO.DirectoryInfo object of the folder that should be checked
+        for the attribute.
 
     .PARAMETER Attribute
-       The attribute to check for on the folder.
+        The name of the attribute from the enum System.IO.FileAttributes.
 #>
 function Test-FileAttribute
 {
@@ -295,4 +308,67 @@ function Test-FileAttribute
     }
 
     return $isPresent
+}
+
+<#
+    .SYNOPSIS
+        Sets or removes an attribute on a folder.
+
+    .PARAMETER Folder
+        The System.IO.DirectoryInfo object of the folder that should have the
+        attribute set or removed.
+
+    .PARAMETER Attribute
+       The name of the attribute from the enum System.IO.FileAttributes.
+
+    .PARAMETER Enabled
+       If the attribute should be enabled or disabled.
+
+    .PARAMETER PassThru
+       When used a System.IO.DirectoryInfo object is returned.
+
+    .OUTPUTS
+       Returns a System.IO.DirectoryInfo object if the parameter PassThru is used.
+#>
+function Set-FileAttribute
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.IO.DirectoryInfo]
+        $Folder,
+
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileAttributes]
+        $Attribute,
+
+        [Parameter(Mandatory = $true)]
+        [System.Boolean]
+        $Enabled,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $PassThru
+    )
+
+    switch ($Enabled)
+    {
+        $true
+        {
+            $Folder.Attributes = [System.IO.FileAttributes]::$Attribute
+
+        }
+
+        $false
+        {
+            $Folder.Attributes -= [System.IO.FileAttributes]::$Attribute
+        }
+    }
+
+    if ($PassThru.IsPresent)
+    {
+        return $folderObject
+    }
 }

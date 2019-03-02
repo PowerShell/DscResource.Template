@@ -311,304 +311,200 @@ try
 
         Describe 'MSFT_Folder\Set-TargetResource' -Tag 'Set' {
             BeforeAll {
-                $mockDynamicDatabaseMailEnabledRunValue = $mockDatabaseMailEnabledConfigValue
-                $mockDynamicLoggingLevelValue = $mockLoggingLevelExtendedValue
-                $mockDynamicDescription = $mockDescription
-                $mockDynamicAgentMailType = $mockAgentMailTypeDatabaseMail
-                $mockDynamicDatabaseMailProfile = $mockProfileName
+                $defaultParameters = @{
+                    Path     = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
+                    ReadOnly = $false
+                }
             }
 
             BeforeEach {
-                Mock -CommandName Connect-SQL -MockWith $mockConnectSQL -Verifiable
-                Mock -CommandName New-Object -MockWith $mockNewObject_MailAccount -ParameterFilter {
-                    $TypeName -eq 'Microsoft.SqlServer.Management.SMO.Mail.MailAccount'
-                } -Verifiable
-
-                Mock -CommandName New-Object -MockWith $mockNewObject_MailProfile -ParameterFilter {
-                    $TypeName -eq 'Microsoft.SqlServer.Management.SMO.Mail.MailProfile'
-                } -Verifiable
-
                 $setTargetResourceParameters = $defaultParameters.Clone()
-
-                $script:MailAccountCreateMethodCallCount = 0
-                $script:MailServerRenameMethodCallCount = 0
-                $script:MailServerAlterMethodCallCount = 0
-                $script:MailAccountAlterMethodCallCount = 0
-                $script:MailProfileCreateMethodCallCount = 0
-                $script:MailProfileAlterMethodCallCount = 0
-                $script:MailProfileAddPrincipalMethodCallCount = 0
-                $script:MailProfileAddAccountMethodCallCount = 0
-                $script:JobServerAlterMethodCallCount = 0
-                $script:LoggingLevelAlterMethodCallCount = 0
-                $script:MailProfileDropMethodCallCount = 0
-                $script:MailAccountDropMethodCallCount = 0
-
-                $mockDynamicExpectedAccountName = $mockMissingAccountName
-            }
-
-            Context 'When the system is in the desired state' {
-                Context 'When the configuration is absent' {
-                    BeforeEach {
-                        $setTargetResourceParameters['Ensure'] = 'Absent'
-                        $setTargetResourceParameters['AccountName'] = $mockMissingAccountName
-                        $setTargetResourceParameters['ProfileName'] = 'MissingProfile'
-
-                        $mockDynamicAgentMailType = $mockAgentMailTypeSqlAgentMail
-                        $mockDynamicDatabaseMailProfile = $null
-                    }
-
-                    It 'Should call the correct methods without throwing' {
-                        { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
-                        $script:MailAccountCreateMethodCallCount | Should -Be 0
-                        $script:MailServerRenameMethodCallCount | Should -Be 0
-                        $script:MailServerAlterMethodCallCount | Should -Be 0
-                        $script:MailAccountAlterMethodCallCount | Should -Be 0
-                        $script:MailProfileCreateMethodCallCount | Should -Be 0
-                        $script:MailProfileAlterMethodCallCount | Should -Be 0
-                        $script:MailProfileAddPrincipalMethodCallCount | Should -Be 0
-                        $script:MailProfileAddAccountMethodCallCount | Should -Be 0
-                        $script:JobServerAlterMethodCallCount | Should -Be 0
-                        $script:LoggingLevelAlterMethodCallCount | Should -Be 0
-                        $script:MailProfileDropMethodCallCount | Should -Be 0
-                        $script:MailAccountDropMethodCallCount | Should -Be 0
-
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                    }
-                }
-
-                Context 'When the configuration is present' {
-                    BeforeEach {
-                        $setTargetResourceParameters['DisplayName'] = $mockDisplayName
-                        $setTargetResourceParameters['ReplyToAddress'] = $mockReplyToAddress
-                        $setTargetResourceParameters['Description'] = $mockDescription
-                        $setTargetResourceParameters['LoggingLevel'] = $mockLoggingLevelExtended
-                        $setTargetResourceParameters['TcpPort'] = $mockTcpPort
-                    }
-
-                    It 'Should call the correct methods without throwing' {
-                        { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
-                        $script:MailAccountCreateMethodCallCount | Should -Be 0
-                        $script:MailServerRenameMethodCallCount | Should -Be 0
-                        $script:MailServerAlterMethodCallCount | Should -Be 0
-                        $script:MailAccountAlterMethodCallCount | Should -Be 0
-                        $script:MailProfileCreateMethodCallCount | Should -Be 0
-                        $script:MailProfileAlterMethodCallCount | Should -Be 0
-                        $script:MailProfileAddPrincipalMethodCallCount | Should -Be 0
-                        $script:MailProfileAddAccountMethodCallCount | Should -Be 0
-                        $script:JobServerAlterMethodCallCount | Should -Be 0
-                        $script:LoggingLevelAlterMethodCallCount | Should -Be 0
-                        $script:MailProfileDropMethodCallCount | Should -Be 0
-                        $script:MailAccountDropMethodCallCount | Should -Be 0
-
-                        Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                    }
-                }
             }
 
             Context 'When the system is not in the desired state' {
+                BeforeAll {
+                    Mock -CommandName Set-FileAttribute
+                }
+
+                AfterEach {
+                    <#
+                        Make sure to remove the test folder so that it does
+                        not exist for other tests.
+                    #>
+                    if ($script:mockFolderObject -and (Test-Path -Path $script:mockFolderObject))
+                    {
+                        Remove-Item -Path $script:mockFolderObject -Force
+                    }
+                }
+
                 Context 'When the configuration should be absent' {
+                    BeforeAll {
+                        Mock -CommandName Get-TargetResource -MockWith {
+                            return @{
+                                Ensure = 'Present'
+                            }
+                        } -Verifiable
+
+                        Mock -CommandName Remove-Item -ParameterFilter {
+                            $Path -eq $setTargetResourceParameters.Path
+                        } -Verifiable
+                    }
+
                     BeforeEach {
                         $setTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
-                    It 'Should return the state as $false' {
+                    It 'Should call the correct mocks' {
                         { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
-                        $script:JobServerAlterMethodCallCount | Should -Be 1
-                        $script:MailProfileDropMethodCallCount | Should -Be 1
-                        $script:MailAccountDropMethodCallCount | Should -Be 1
+
+                        Assert-MockCalled -CommandName Remove-Item -Exactly -Times 1 -Scope 'It'
                     }
                 }
 
                 Context 'When the configuration should be present' {
-                    Context 'When Database Mail XPs is enabled but fails evaluation' {
-                        $mockDynamicDatabaseMailEnabledRunValue = $mockDatabaseMailDisabledConfigValue
+                    BeforeAll {
+                        $script:mockFolderObject = New-Item -Path $defaultParameters.Path -ItemType 'Directory' -Force
 
-                        It 'Should throw the correct error message' {
-                            {
-                                Set-TargetResource @setTargetResourceParameters
-                            } | Should -Throw $script:localizedData.DatabaseMailDisabled
+                        Mock -CommandName Get-TargetResource -MockWith {
+                            return @{
+                                Ensure = 'Absent'
+                            }
+                        } -Verifiable
 
-                            Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                        }
+                        Mock -CommandName Get-Item
+                        Mock -CommandName New-Item -ParameterFilter {
+                            $Path -eq $setTargetResourceParameters.Path
+                        } -MockWith {
+                            return $script:mockFolderObject
+                        } -Verifiable
                     }
 
-                    Context 'When account name is missing' {
-                        It 'Should call the correct methods without throwing' {
-                            $setTargetResourceParameters['AccountName'] = $mockMissingAccountName
-                            $setTargetResourceParameters['DisplayName'] = $mockDisplayName
-                            $setTargetResourceParameters['ReplyToAddress'] = $mockReplyToAddress
-                            $setTargetResourceParameters['Description'] = $mockDescription
-                            $setTargetResourceParameters['LoggingLevel'] = $mockLoggingLevelExtended
-                            $setTargetResourceParameters['TcpPort'] = $mockTcpPort
-
-                            { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
-                            $script:MailAccountCreateMethodCallCount | Should -Be 1
-                            $script:MailServerRenameMethodCallCount | Should -Be 1
-                            $script:MailServerAlterMethodCallCount | Should -Be 1
-                            $script:MailAccountAlterMethodCallCount | Should -Be 0
-
-                            Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
-                        }
+                    BeforeEach {
+                        $setTargetResourceParameters['Ensure'] = 'Present'
                     }
 
-                    Context 'When properties are not in desired state' {
-                        $defaultTestCase = @{
-                            AccountName    = $mockAccountName
-                            EmailAddress   = $mockEmailAddress
-                            MailServerName = $mockMailServerName
-                            ProfileName    = $mockProfileName
-                            DisplayName    = $mockDisplayName
-                            ReplyToAddress = $mockReplyToAddress
-                            Description    = $mockDescription
-                            LoggingLevel   = $mockLoggingLevelExtended
-                            TcpPort        = $mockTcpPort
-                        }
+                    It 'Should call the correct mocks' {
+                        { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
 
-                        $testCaseEmailAddressIsWrong = $defaultTestCase.Clone()
-                        $testCaseEmailAddressIsWrong['TestName'] = 'EmailAddress is wrong'
-                        $testCaseEmailAddressIsWrong['EmailAddress'] = 'wrong@email.address'
+                        Assert-MockCalled -CommandName Get-Item -Exactly -Times 0 -Scope 'It'
+                        Assert-MockCalled -CommandName New-Item -ParameterFilter {
+                            $Path -eq $defaultParameters.Path
+                        } -Exactly -Times 1 -Scope 'It'
 
-                        $testCaseMailServerNameIsWrong = $defaultTestCase.Clone()
-                        $testCaseMailServerNameIsWrong['TestName'] = 'MailServerName is wrong'
-                        $testCaseMailServerNameIsWrong['MailServerName'] = 'smtp.contoso.com'
+                        Assert-MockCalled -CommandName Set-FileAttribute -ParameterFilter {
+                            $Attribute -eq 'ReadOnly'
+                        } -Exactly -Times 1 -Scope 'It'
 
-                        $testCaseProfileNameIsWrong = $defaultTestCase.Clone()
-                        $testCaseProfileNameIsWrong['TestName'] = 'ProfileName is wrong'
-                        $testCaseProfileNameIsWrong['ProfileName'] = 'NewProfile'
+                        Assert-MockCalled -CommandName Set-FileAttribute -ParameterFilter {
+                            $Attribute -eq 'Hidden'
+                        } -Exactly -Times 1 -Scope 'It'
+                    }
+                }
 
-                        $testCaseDisplayNameIsWrong = $defaultTestCase.Clone()
-                        $testCaseDisplayNameIsWrong['TestName'] = 'DisplayName is wrong'
-                        $testCaseDisplayNameIsWrong['DisplayName'] = 'New display name'
+                Context 'When the configuration is present but has the wrong properties' {
+                    BeforeAll {
+                        $script:mockFolderObject = New-Item -Path $defaultParameters.Path -ItemType 'Directory' -Force
 
-                        $testCaseReplyToAddressIsWrong = $defaultTestCase.Clone()
-                        $testCaseReplyToAddressIsWrong['TestName'] = 'ReplyToAddress is wrong'
-                        $testCaseReplyToAddressIsWrong['ReplyToAddress'] = 'new-reply@email.address'
-
-                        $testCaseDescriptionIsWrong = $defaultTestCase.Clone()
-                        $testCaseDescriptionIsWrong['TestName'] = 'Description is wrong'
-                        $testCaseDescriptionIsWrong['Description'] = 'New description'
-
-                        $testCaseLoggingLevelIsWrong_Normal = $defaultTestCase.Clone()
-                        $testCaseLoggingLevelIsWrong_Normal['TestName'] = 'LoggingLevel is wrong, should be ''Normal'''
-                        $testCaseLoggingLevelIsWrong_Normal['LoggingLevel'] = $mockLoggingLevelNormal
-
-                        $testCaseLoggingLevelIsWrong_Verbose = $defaultTestCase.Clone()
-                        $testCaseLoggingLevelIsWrong_Verbose['TestName'] = 'LoggingLevel is wrong, should be ''Verbose'''
-                        $testCaseLoggingLevelIsWrong_Verbose['LoggingLevel'] = $mockLoggingLevelVerbose
-
-                        $testCaseTcpPortIsWrong = $defaultTestCase.Clone()
-                        $testCaseTcpPortIsWrong['TestName'] = 'TcpPort is wrong'
-                        $testCaseTcpPortIsWrong['TcpPort'] = 2525
-
-                        $testCases = @(
-                            $testCaseEmailAddressIsWrong
-                            $testCaseMailServerNameIsWrong
-                            $testCaseProfileNameIsWrong
-                            $testCaseDisplayNameIsWrong
-                            $testCaseReplyToAddressIsWrong
-                            $testCaseDescriptionIsWrong
-                            $testCaseLoggingLevelIsWrong_Normal
-                            $testCaseLoggingLevelIsWrong_Verbose
-                            $testCaseTcpPortIsWrong
+                        $testCase = @(
+                            @{
+                                ReadOnly      = $true
+                                Hidden        = $false
+                                EnableSharing = $false
+                                ShareName     = $null
+                            },
+                            @{
+                                ReadOnly      = $false
+                                Hidden        = $true
+                                EnableSharing = $false
+                                ShareName     = $null
+                            },
+                            @{
+                                ReadOnly      = $false
+                                Hidden        = $false
+                                EnableSharing = $true
+                                ShareName     = 'TestShare'
+                            }
                         )
 
-                        It 'Should return the state as $false when <TestName>' -TestCases $testCases {
-                            param
-                            (
-                                $TestName,
-                                $AccountName,
-                                $EmailAddress,
-                                $MailServerName,
-                                $ProfileName,
-                                $DisplayName,
-                                $ReplyToAddress,
-                                $Description,
-                                $LoggingLevel,
-                                $TcpPort
-                            )
+                        Mock -CommandName New-Item
+                        Mock -CommandName Get-Item -ParameterFilter {
+                            $Path -eq $setTargetResourceParameters.Path
+                        } -MockWith {
+                            return $script:mockFolderObject
+                        } -Verifiable
+                    }
 
-                            $setTargetResourceParameters['AccountName'] = $AccountName
-                            $setTargetResourceParameters['EmailAddress'] = $EmailAddress
-                            $setTargetResourceParameters['MailServerName'] = $MailServerName
-                            $setTargetResourceParameters['ProfileName'] = $ProfileName
-                            $setTargetResourceParameters['DisplayName'] = $DisplayName
-                            $setTargetResourceParameters['ReplyToAddress'] = $ReplyToAddress
-                            $setTargetResourceParameters['Description'] = $Description
-                            $setTargetResourceParameters['LoggingLevel'] = $LoggingLevel
-                            $setTargetResourceParameters['TcpPort'] = $TcpPort
+                    BeforeEach {
+                        $setTargetResourceParameters['Ensure'] = 'Present'
+                    }
 
-                            { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
+                    It 'Should call the correct mocks when ReadOnly is <ReadOnly>, Hidden is <Hidden>, and EnableSharing is <EnableSharing>' -TestCases $testCase {
+                        param
+                        (
+                            [Parameter(Mandatory = $true)]
+                            [System.Boolean]
+                            $ReadOnly,
 
-                            $script:MailAccountCreateMethodCallCount | Should -Be 0
+                            [Parameter()]
+                            [System.Boolean]
+                            $Hidden,
 
-                            if ($TestName -like '*MailServerName*')
-                            {
-                                $script:MailServerRenameMethodCallCount | Should -Be 1
-                                $script:MailServerAlterMethodCallCount | Should -Be 1
-                                $script:MailAccountAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileCreateMethodCallCount | Should -Be 0
-                                $script:MailProfileAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileAddPrincipalMethodCallCount | Should -Be 0
-                                $script:MailProfileAddAccountMethodCallCount | Should -Be 0
-                                $script:JobServerAlterMethodCallCount | Should -Be 0
-                                $script:LoggingLevelAlterMethodCallCount | Should -Be 0
-                            }
-                            elseif ($TestName -like '*TcpPort*')
-                            {
-                                $script:MailServerRenameMethodCallCount | Should -Be 0
-                                $script:MailServerAlterMethodCallCount | Should -Be 1
-                                $script:MailAccountAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileCreateMethodCallCount | Should -Be 0
-                                $script:MailProfileAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileAddPrincipalMethodCallCount | Should -Be 0
-                                $script:MailProfileAddAccountMethodCallCount | Should -Be 0
-                                $script:JobServerAlterMethodCallCount | Should -Be 0
-                                $script:LoggingLevelAlterMethodCallCount | Should -Be 0
-                            }
-                            elseif ($TestName -like '*ProfileName*')
-                            {
-                                $script:MailServerRenameMethodCallCount | Should -Be 0
-                                $script:MailServerAlterMethodCallCount | Should -Be 0
-                                $script:MailAccountAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileCreateMethodCallCount | Should -Be 1
-                                $script:MailProfileAlterMethodCallCount | Should -Be 1
-                                $script:MailProfileAddPrincipalMethodCallCount | Should -Be 1
-                                $script:MailProfileAddAccountMethodCallCount | Should -Be 1
-                                $script:JobServerAlterMethodCallCount | Should -Be 1
-                                $script:LoggingLevelAlterMethodCallCount | Should -Be 0
-                            }
-                            elseif ($TestName -like '*LoggingLevel*')
-                            {
-                                $script:MailServerRenameMethodCallCount | Should -Be 0
-                                $script:MailServerAlterMethodCallCount | Should -Be 0
-                                $script:MailAccountAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileCreateMethodCallCount | Should -Be 0
-                                $script:MailProfileAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileAddPrincipalMethodCallCount | Should -Be 0
-                                $script:MailProfileAddAccountMethodCallCount | Should -Be 0
-                                $script:JobServerAlterMethodCallCount | Should -Be 0
-                                $script:LoggingLevelAlterMethodCallCount | Should -Be 1
-                            }
-                            else
-                            {
-                                $script:MailServerRenameMethodCallCount | Should -Be 0
-                                $script:MailServerAlterMethodCallCount | Should -Be 0
-                                $script:MailAccountAlterMethodCallCount | Should -Be 1
-                                $script:MailProfileCreateMethodCallCount | Should -Be 0
-                                $script:MailProfileAlterMethodCallCount | Should -Be 0
-                                $script:MailProfileAddPrincipalMethodCallCount | Should -Be 0
-                                $script:MailProfileAddAccountMethodCallCount | Should -Be 0
-                                $script:JobServerAlterMethodCallCount | Should -Be 0
-                                $script:LoggingLevelAlterMethodCallCount | Should -Be 0
-                            }
+                            [Parameter()]
+                            [System.Boolean]
+                            $EnableSharing,
 
-                            Assert-MockCalled Connect-SQL -Exactly -Times 1 -Scope It
+                            [Parameter()]
+                            [System.String]
+                            $ShareName
+                        )
+
+                        $mockGetTargetResource = @{
+                            Ensure = 'Present'
+                            Path =  $script:mockFolderObject.FullName
+                            ReadOnly = $ReadOnly
+                            Hidden = $Hidden
+                            EnableSharing = $EnableSharing
+                            ShareName = $ShareName
+                        }
+
+                        Mock -CommandName Get-TargetResource -MockWith {
+                            return $mockGetTargetResource
+                        }
+
+                        $setTargetResourceParameters['ReadOnly'] = $false
+                        $setTargetResourceParameters['Hidden'] = $false
+                        $setTargetResourceParameters['EnableSharing'] = $false
+
+                        { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
+
+                        Assert-MockCalled -CommandName New-Item -Exactly -Times 0 -Scope 'It'
+                        Assert-MockCalled -CommandName Get-Item -Exactly -Times 1 -Scope 'It'
+
+                        if ($ReadOnly)
+                        {
+                            Assert-MockCalled -CommandName Set-FileAttribute -ParameterFilter {
+                                $Attribute -eq 'ReadOnly'
+                            } -Exactly -Times 1 -Scope 'It'
+                        }
+
+                        if ($Hidden)
+                        {
+                            Assert-MockCalled -CommandName Set-FileAttribute -ParameterFilter {
+                                $Attribute -eq 'Hidden'
+                            } -Exactly -Times 1 -Scope 'It'
+                        }
+
+                        if ($EnableSharing)
+                        {
+                            Assert-MockCalled -CommandName Set-FileAttribute -ParameterFilter {
+                                $Attribute -eq 'Unknown'
+                            } -Exactly -Times 1 -Scope 'It'
                         }
                     }
                 }
-            }
 
-            Assert-VerifiableMock
+                Assert-VerifiableMock
+            }
         }
     }
 }
