@@ -4,6 +4,10 @@ The **DscResource.Template** module contains a template with example code and
 best practices for DSC resource modules in
 [DSC Resource Kit](https://github.com/PowerShell/DscResources).
 
+>**NOTE!** This is not meant to be a fully functioning resource module.
+>The resource in this repository is just to make sure common code works,
+>and used as a practical example.
+
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/)
 or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional
