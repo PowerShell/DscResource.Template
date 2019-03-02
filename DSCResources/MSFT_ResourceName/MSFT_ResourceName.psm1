@@ -57,6 +57,7 @@ function Set-TargetResource
         $MandatoryParameter,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
 
@@ -90,6 +91,7 @@ function Test-TargetResource
         $MandatoryParameter,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
 
