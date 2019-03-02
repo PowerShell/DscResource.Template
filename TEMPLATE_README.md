@@ -220,6 +220,10 @@ for more information.
 This is the change log for DscResource.Template. Any changes to the
 DscResource.Template should be mentioned here for reference by the users.
 
+### 2019-02-03
+
+- Initial commit to repository DscResource.Template.
+
 ### 2018-09-22
 
 - The file appveyor.yml correctly uses named parameters for PowerShell cmdlets.
