@@ -42,7 +42,7 @@ function Get-TargetResource
         Path          = $Path
         ReadOnly      = $false
         Hidden        = $false
-        EnableSharing = $false
+        Shared        = $false
         ShareName     = $null
     }
 
@@ -79,7 +79,7 @@ function Get-TargetResource
         $getTargetResourceResult['Ensure'] = 'Present'
         $getTargetResourceResult['ReadOnly'] = $isReadOnly
         $getTargetResourceResult['Hidden'] = $isHidden
-        $getTargetResourceResult['EnableSharing'] = $isShared
+        $getTargetResourceResult['Shared'] = $isShared
         $getTargetResourceResult['ShareName'] = $shareName
     }
     else
@@ -104,9 +104,6 @@ function Get-TargetResource
     .PARAMETER Hidden
         If the folder attribut should be hidden. Default value is $false.
 
-    .PARAMETER EnableSharing
-        If sharing should be enabled on the folder. Default value is $false
-
     .PARAMETER Ensure
         Specifies the desired state of the folder. When set to 'Present', the folder will be created. When set to 'Absent', the folder will be removed. Default value is 'Present'.
 #>
@@ -126,10 +123,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $Hidden,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableSharing,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -196,9 +189,6 @@ function Set-TargetResource
     .PARAMETER Hidden
         If the folder attribut should be hidden. Default value is $false.
 
-    .PARAMETER EnableSharing
-        If sharing should be enabled on the folder. Default value is $false
-
     .PARAMETER Ensure
         Specifies the desired state of the folder. When set to 'Present', the folder will be created. When set to 'Absent', the folder will be removed. Default value is 'Present'.
 #>
@@ -219,10 +209,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $Hidden,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableSharing,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -247,7 +233,6 @@ function Test-TargetResource
             'Ensure'
             'ReadOnly'
             'Hidden'
-            'EnableSharing'
         )
 
         $testTargetResourceResult = Test-DscParameterState `
@@ -323,17 +308,11 @@ function Test-FileAttribute
 
     .PARAMETER Enabled
        If the attribute should be enabled or disabled.
-
-    .PARAMETER PassThru
-       When used a System.IO.DirectoryInfo object is returned.
-
-    .OUTPUTS
-       Returns a System.IO.DirectoryInfo object if the parameter PassThru is used.
 #>
 function Set-FileAttribute
 {
     [CmdletBinding()]
-    [OutputType([System.Boolean])]
+    [OutputType([System.IO.DirectoryInfo])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -346,11 +325,7 @@ function Set-FileAttribute
 
         [Parameter(Mandatory = $true)]
         [System.Boolean]
-        $Enabled,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $PassThru
+        $Enabled
     )
 
     switch ($Enabled)
@@ -365,10 +340,5 @@ function Set-FileAttribute
         {
             $Folder.Attributes -= [System.IO.FileAttributes]::$Attribute
         }
-    }
-
-    if ($PassThru.IsPresent)
-    {
-        return $folderObject
     }
 }

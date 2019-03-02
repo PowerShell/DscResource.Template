@@ -91,14 +91,13 @@ Example resource to manage a folder on Windows.
   read only.
 * **`[Boolean]` Hidden** _(Write)_: If the folder should be hidden.
   Default value is `$false`.
-* **`[Boolean]` EnableSharing** _(Write)_: If sharing should be enabled on the
-  folder. Default value is `$false`.
 * **`[String]` Ensure** _(Write)_: Specifies the desired state of the folder.
      When set to `'Present'`, the folder will be created. When set to `'Absent'`,
     the folder will be removed. Default value is `'Present'`.
 
 #### Read-Only Properties from Get-TargetResource
 
+* **`[Boolean]` Shared** _(Write)_: If sharing is be enabled or disabled.
 * **`[String]` ShareName** _(Read)_: The name of the shared resource.
 
 #### Examples

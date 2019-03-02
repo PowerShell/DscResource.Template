@@ -5,7 +5,7 @@ $script:dscResourceName = 'MSFT_Folder'
 # Unit Test Template Version: 1.2.4
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
-     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
+    (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
     & git @('clone', 'https://github.com/PowerShell/DscResource.Tests.git', (Join-Path -Path $script:moduleRoot -ChildPath 'DscResource.Tests'))
 }
@@ -74,7 +74,7 @@ try
                 It 'Should return $false or $null respectively for the rest of the properties' {
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Hidden | Should -Be $false
-                    $getTargetResourceResult.EnableSharing | Should -Be $false
+                    $getTargetResourceResult.Shared | Should -Be $false
                     $getTargetResourceResult.ShareName | Should -BeNullOrEmpty
                 }
             }
@@ -87,10 +87,10 @@ try
 
                     $testCase = @(
                         @{
-                            EnableSharing = $false
+                            Shared = $false
                         },
                         @{
-                            EnableSharing = $true
+                            Shared = $true
                         }
                     )
                 }
@@ -98,7 +98,7 @@ try
                 BeforeEach {
                     Mock -CommandName Get-SmbShare -MockWith {
                         return @{
-                            Path = $EnableSharing
+                            Path = $Shared
                         }
                     }
                 }
@@ -115,16 +115,16 @@ try
                     $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
                 }
 
-                It 'Should return the correct values when EnableSharing is <EnableSharing>' -TestCases $testCase {
+                It 'Should return the correct values when Shared is <Shared>' -TestCases $testCase {
                     param
                     (
                         [Parameter(Mandatory = $true)]
                         [System.Boolean]
-                        $EnableSharing
+                        $Shared
                     )
 
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
-                    $getTargetResourceResult.EnableSharing | Should -Be $EnableSharing
+                    $getTargetResourceResult.Shared | Should -Be $Shared
 
                     Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
                 }
@@ -168,10 +168,10 @@ try
                 Context 'When the configuration are present' {
                     BeforeAll {
                         $mockGetTargetResource = @{
-                            Ensure = 'Present'
-                            ReadOnly = $true
-                            Hidden = $true
-                            EnableSharing = $true
+                            Ensure    = 'Present'
+                            ReadOnly  = $true
+                            Hidden    = $true
+                            Shared    = $true
                             ShareName = 'TestShare'
                         }
 
@@ -184,7 +184,6 @@ try
                         $testTargetResourceParameters['Ensure'] = 'Present'
                         $testTargetResourceParameters['ReadOnly'] = $true
                         $testTargetResourceParameters['Hidden'] = $true
-                        $testTargetResourceParameters['EnableSharing'] = $true
                     }
 
                     It 'Should return the $true' {
@@ -220,25 +219,18 @@ try
                     BeforeAll {
                         $testCase = @(
                             @{
-                                Path          = (Join-Path -Path $TestDrive -ChildPath 'FolderTestReadOnly')
-                                ReadOnly      = $true
-                                Hidden        = $false
-                                EnableSharing = $false
-                                ShareName     = $null
+                                Path      = (Join-Path -Path $TestDrive -ChildPath 'FolderTestReadOnly')
+                                ReadOnly  = $true
+                                Hidden    = $false
+                                Shared    = $false
+                                ShareName = $null
                             },
                             @{
-                                Path          = (Join-Path -Path $TestDrive -ChildPath 'FolderTestHidden')
-                                ReadOnly      = $false
-                                Hidden        = $true
-                                EnableSharing = $false
-                                ShareName     = $null
-                            },
-                            @{
-                                Path          = (Join-Path -Path $TestDrive -ChildPath 'FolderTestShare')
-                                ReadOnly      = $false
-                                Hidden        = $false
-                                EnableSharing = $true
-                                ShareName     = 'TestShare'
+                                Path      = (Join-Path -Path $TestDrive -ChildPath 'FolderTestHidden')
+                                ReadOnly  = $false
+                                Hidden    = $true
+                                Shared    = $false
+                                ShareName = $null
                             }
                         )
                     }
@@ -250,7 +242,7 @@ try
                     It 'Should return the $true' {
                         Mock -CommandName Get-TargetResource -MockWith {
                             return @{
-                                Ensure = 'Absent'
+                                Ensure   = 'Absent'
                                 ReadOnly = $false
                             }
                         } -Verifiable
@@ -259,7 +251,7 @@ try
                         $testTargetResourceResult | Should -Be $false
                     }
 
-                    It 'Should return $false when ReadOnly is <ReadOnly>, Hidden is <Hidden>, and EnableSharing is <EnableSharing>' -TestCases $testCase {
+                    It 'Should return $false when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase {
                         param
                         (
                             [Parameter(Mandatory = $true)]
@@ -276,7 +268,7 @@ try
 
                             [Parameter()]
                             [System.Boolean]
-                            $EnableSharing,
+                            $Shared,
 
                             [Parameter()]
                             [System.String]
@@ -284,11 +276,11 @@ try
                         )
 
                         $mockGetTargetResource = @{
-                            Ensure = 'Present'
-                            Path = $Path
-                            ReadOnly = $ReadOnly
-                            Hidden = $Hidden
-                            EnableSharing = $EnableSharing
+                            Ensure    = 'Present'
+                            Path      = $Path
+                            ReadOnly  = $ReadOnly
+                            Hidden    = $Hidden
+                            Shared    = $Shared
                             ShareName = $ShareName
                         }
 
@@ -298,7 +290,6 @@ try
 
                         $testTargetResourceParameters['ReadOnly'] = $false
                         $testTargetResourceParameters['Hidden'] = $false
-                        $testTargetResourceParameters['EnableSharing'] = $false
 
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $false
@@ -407,22 +398,22 @@ try
 
                         $testCase = @(
                             @{
-                                ReadOnly      = $true
-                                Hidden        = $false
-                                EnableSharing = $false
-                                ShareName     = $null
+                                ReadOnly  = $true
+                                Hidden    = $false
+                                Shared    = $false
+                                ShareName = $null
                             },
                             @{
-                                ReadOnly      = $false
-                                Hidden        = $true
-                                EnableSharing = $false
-                                ShareName     = $null
+                                ReadOnly  = $false
+                                Hidden    = $true
+                                Shared    = $false
+                                ShareName = $null
                             },
                             @{
-                                ReadOnly      = $false
-                                Hidden        = $false
-                                EnableSharing = $true
-                                ShareName     = 'TestShare'
+                                ReadOnly  = $false
+                                Hidden    = $false
+                                Shared    = $true
+                                ShareName = 'TestShare'
                             }
                         )
 
@@ -438,7 +429,7 @@ try
                         $setTargetResourceParameters['Ensure'] = 'Present'
                     }
 
-                    It 'Should call the correct mocks when ReadOnly is <ReadOnly>, Hidden is <Hidden>, and EnableSharing is <EnableSharing>' -TestCases $testCase {
+                    It 'Should call the correct mocks when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase {
                         param
                         (
                             [Parameter(Mandatory = $true)]
@@ -451,7 +442,7 @@ try
 
                             [Parameter()]
                             [System.Boolean]
-                            $EnableSharing,
+                            $Shared,
 
                             [Parameter()]
                             [System.String]
@@ -459,11 +450,11 @@ try
                         )
 
                         $mockGetTargetResource = @{
-                            Ensure = 'Present'
-                            Path =  $script:mockFolderObject.FullName
-                            ReadOnly = $ReadOnly
-                            Hidden = $Hidden
-                            EnableSharing = $EnableSharing
+                            Ensure    = 'Present'
+                            Path      = $script:mockFolderObject.FullName
+                            ReadOnly  = $ReadOnly
+                            Hidden    = $Hidden
+                            Shared    = $Shared
                             ShareName = $ShareName
                         }
 
@@ -473,7 +464,6 @@ try
 
                         $setTargetResourceParameters['ReadOnly'] = $false
                         $setTargetResourceParameters['Hidden'] = $false
-                        $setTargetResourceParameters['EnableSharing'] = $false
 
                         { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
 
@@ -493,17 +483,72 @@ try
                                 $Attribute -eq 'Hidden'
                             } -Exactly -Times 1 -Scope 'It'
                         }
-
-                        if ($EnableSharing)
-                        {
-                            Assert-MockCalled -CommandName Set-FileAttribute -ParameterFilter {
-                                $Attribute -eq 'Unknown'
-                            } -Exactly -Times 1 -Scope 'It'
-                        }
                     }
                 }
 
                 Assert-VerifiableMock
+            }
+        }
+
+        Describe 'MSFT_Folder\Test-FileAttribute' -Tag 'Helper' {
+            BeforeAll {
+                $mockAttribute = 'ReadOnly'
+                $script:mockFolderObjectPath = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
+                $script:mockFolderObject = New-Item -Path $script:mockFolderObjectPath -ItemType 'Directory' -Force
+                $script:mockFolderObject.Attributes = [System.IO.FileAttributes]::$mockAttribute
+            }
+
+            Context 'When a folder has a specific attribute' {
+                It 'Should return $true' {
+                    $testFileAttributeResult = Test-FileAttribute -Folder $script:mockFolderObject -Attribute $mockAttribute
+                    $testFileAttributeResult | Should -Be $true
+                }
+            }
+
+            Context 'When a folder does not have a specific attribute' {
+                It 'Should return $false' {
+                    $testFileAttributeResult = Test-FileAttribute -Folder $script:mockFolderObject -Attribute 'Hidden'
+                    $testFileAttributeResult | Should -Be $false
+                }
+            }
+        }
+
+        Describe 'MSFT_Folder\Set-FileAttribute' -Tag 'Helper' {
+            BeforeAll {
+                $mockAttribute = 'ReadOnly'
+                $script:mockFolderObjectPath = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
+                $script:mockFolderObject = New-Item -Path $script:mockFolderObjectPath -ItemType 'Directory' -Force
+
+                $defaultAttributeParameter = @{
+                    Folder = $script:mockFolderObject
+                    Attribute = $mockAttribute
+                }
+        }
+
+            Context 'When a folder should have a specific attribute' {
+                It 'Should set the folder to the specific attribute' {
+                    $setFileAttributeParameter = $defaultAttributeParameter.Clone()
+                    $setFileAttributeParameter['Enabled'] = $true
+
+                    { Set-FileAttribute @setFileAttributeParameter } | Should -Not -Throw
+
+                    # Using the helper function that was test above to test the result
+                    $testFileAttributeResult = Test-FileAttribute @defaultAttributeParameter
+                    $testFileAttributeResult | Should -Be $true
+                }
+            }
+
+            Context 'When a folder should not have a specific attribute' {
+                It 'Should set the folder to the specific attribute' {
+                    $setFileAttributeParameter = $defaultAttributeParameter.Clone()
+                    $setFileAttributeParameter['Enabled'] = $false
+
+                    { Set-FileAttribute @setFileAttributeParameter } | Should -Not -Throw
+
+                    # Using the helper function that was test above to test the result
+                    $testFileAttributeResult = Test-FileAttribute @defaultAttributeParameter
+                    $testFileAttributeResult | Should -Be $false
+                }
             }
         }
     }
