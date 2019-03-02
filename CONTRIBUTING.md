@@ -70,7 +70,7 @@ with just 'Sql'
 Helper functions or wrapper functions that are used by the resource can preferably
 be placed in the resource module file. If the functions are of a type that could
 be used by more than one resource, then the functions should be placed in the
-shared [DscResource.Template.ResourceHelper.psm1](/Modules/DscResource.Template.ResourceHelper.psm1)
+shared [DscResource.Template.ResourceHelper.psm1](/Modules/DscResource.Template/DscResource.Template.ResourceHelper.psm1)
 module file.
 
 ### Localization
