@@ -108,7 +108,6 @@ Example resource to manage a folder on Windows.
 * [Create folder as user](/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1)
 * [Remove folder](/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1)
 
-
 #### Known issues
 
 All issues are not listed here, see [here for all open issues](https://github.com/PowerShell/DscResource.Template/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Folder).
