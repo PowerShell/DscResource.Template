@@ -21,8 +21,8 @@
 
 #region HEADER
 # TODO: Update to correct module name and resource name.
-$script:DSCModuleName = '<ModuleName>'
-$script:DSCResourceName = '<ResourceName>'
+$script:dscModuleName = '<ModuleName>'
+$script:dscResourceName = '<ResourceName>'
 
 # Unit Test Template Version: 1.2.4
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -36,8 +36,8 @@ Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -P
 
 # TODO: Insert the correct <ModuleName> and <ResourceName> for your resource
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
     -ResourceType 'Mof' `
     -TestType Unit
 
@@ -60,7 +60,7 @@ try
 {
     Invoke-TestSetup
 
-    InModuleScope $script:DSCResourceName {
+    InModuleScope $script:dscResourceName {
         # TODO: Optionally create any variables here for use by your tests
 
         # TODO: Complete the Describe blocks below and add more as needed.
