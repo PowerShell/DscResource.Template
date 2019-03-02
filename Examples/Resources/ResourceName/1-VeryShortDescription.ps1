@@ -1,8 +1,7 @@
 <#
-.EXAMPLE
-    This example shows how to ...
+    .DESCRIPTION
+        This example shows how to ...
 #>
-
 Configuration Example
 {
     # TODO: Change 'DscResource.Template' to the correct module name.
@@ -17,3 +16,4 @@ Configuration Example
             NonMandatoryParameter = 'OtherValue'
         }
     }
+}
