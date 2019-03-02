@@ -2,6 +2,8 @@
 [Microsoft.DscResourceKit.IntegrationTest(OrderNumber = 1)]
 param()
 
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath '..\TestHelpers\CommonTestHelper.psm1')
+
 if (Test-SkipContinuousIntegrationTask -Type 'Integration')
 {
     return

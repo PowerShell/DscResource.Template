@@ -1,6 +1,6 @@
 #region HEADER
-$script:DSCModuleName = 'DscResource.Template'
-$script:DSCResourceName = 'MSFT_Folder'
+$script:dscModuleName = 'DscResource.Template'
+$script:dscResourceName = 'MSFT_Folder'
 
 # Unit Test Template Version: 1.2.4
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -13,8 +13,8 @@ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCR
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 
 $TestEnvironment = Initialize-TestEnvironment `
-    -DSCModuleName $script:DSCModuleName `
-    -DSCResourceName $script:DSCResourceName `
+    -DSCModuleName $script:dscModuleName `
+    -DSCResourceName $script:dscResourceName `
     -ResourceType 'Mof' `
     -TestType Unit
 
@@ -34,10 +34,10 @@ try
 {
     Invoke-TestSetup
 
-    InModuleScope $script:DSCResourceName {
+    InModuleScope $script:dscResourceName {
         $mockFolderObject = $null
 
-        Describe "MSFT_Folder\Get-TargetResource" -Tag 'Get' {
+        Describe 'MSFT_Folder\Get-TargetResource' -Tag 'Get' {
             BeforeAll {
                 $defaultParameters = @{
                     Path     = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
@@ -131,7 +131,7 @@ try
             }
         }
 
-        Describe "MSFT_SqlServerDatabaseMail\Test-TargetResource" -Tag 'Test' {
+        Describe 'MSFT_Folder\Test-TargetResource' -Tag 'Test' {
             BeforeAll {
                 $defaultParameters = @{
                     Path     = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
@@ -309,7 +309,7 @@ try
             }
         }
 
-        Describe "MSFT_SqlServerDatabaseMail\Set-TargetResource" -Tag 'Set' {
+        Describe 'MSFT_Folder\Set-TargetResource' -Tag 'Set' {
             BeforeAll {
                 $mockDynamicDatabaseMailEnabledRunValue = $mockDatabaseMailEnabledConfigValue
                 $mockDynamicLoggingLevelValue = $mockLoggingLevelExtendedValue
