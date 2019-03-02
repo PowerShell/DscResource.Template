@@ -1,11 +1,11 @@
 # Import the CommonResourceHelper module to test
 $script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
-$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules\DscResource.ResourceHelper'
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules\DscResource.Common'
 
-Import-Module -Name (Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.ResourceHelper.psm1') -Force
+Import-Module -Name (Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.Common.psm1') -Force
 
-InModuleScope 'DscResource.ResourceHelper' {
-    Describe 'DscResource.ResourceHelper\Test-DscParameterState' -Tag TestDscParameterState {
+InModuleScope 'DscResource.Common' {
+    Describe 'DscResource.Common\Test-DscParameterState' -Tag TestDscParameterState {
         Context -Name 'When passing values' -Fixture {
             It 'Should return true for two identical tables' {
                 $mockDesiredValues = @{ Example = 'test' }

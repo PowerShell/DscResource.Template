@@ -70,7 +70,7 @@ prefixed with just 'Sql'
 Helper functions that are only used by one resource
 so preferably be put in the same script file as the resource.
 Helper function that can used by more than one resource can preferably
-be placed in the resource module file [DscResource.ResourceHelper](/Modules/DscResource.ResourceHelper/DscResource.ResourceHelper.psm1).
+be placed in the resource module file [DscResource.Common](/Modules/DscResource.Common/DscResource.Common.psm1).
 
 ### Localization
 

@@ -4,7 +4,7 @@ $script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -Chil
 Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'DscResource.LocalizationHelper.psm1')
 
 
-$script:localizedData = Get-LocalizedData -ResourceName 'DscResource.ResourceHelper' -ScriptRoot $PSScriptRoot
+$script:localizedData = Get-LocalizedData -ResourceName 'DscResource.Common' -ScriptRoot $PSScriptRoot
 
 <#
     .SYNOPSIS
