@@ -222,9 +222,10 @@ DscResource.Template should be mentioned here for reference by the users.
 
 ### 2019-03-17
 
-- Update the integrate test `'Should return $true when Test-DscConfiguration
-  is run'` that did not fail correctly if `Test-DscConfiguration` returned
-  'False' ([issue #14](https://github.com/PowerShell/DscResource.Template/issues/14)).
+- Update the integrate test template to version 1.3.3 because the test
+  `'Should return $true when Test-DscConfiguration is run'` that did not
+  fail correctly if `Test-DscConfiguration` returned 'False'
+  ([issue #14](https://github.com/PowerShell/DscResource.Template/issues/14)).
 - Updated some comments in files that wrongly referenced a non-existent
   module.
 
