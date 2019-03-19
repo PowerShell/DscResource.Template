@@ -1,11 +1,3 @@
-$script:modulesFolderPath = Split-Path -Path $PSScriptRoot -Parent
-
-$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.LocalizationHelper'
-Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'DscResource.LocalizationHelper.psm1')
-
-
-$script:localizedData = Get-LocalizedData -ResourceName 'DscResource.Common' -ScriptRoot $PSScriptRoot
-
 <#
     .SYNOPSIS
         This method is used to compare current and desired values for any DSC resource.
@@ -20,6 +12,7 @@ $script:localizedData = Get-LocalizedData -ResourceName 'DscResource.Common' -Sc
         This is a list of which properties in the desired values list should be checked.
         If this is empty then all values in DesiredValues are checked.
 #>
+
 function Test-DscParameterState
 {
     [CmdletBinding()]
@@ -184,7 +177,3 @@ function Test-DscParameterState
 
     return $returnValue
 }
-
-Export-ModuleMember -Function @(
-    'Test-DscParameterState'
-)

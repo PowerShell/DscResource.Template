@@ -1,6 +1,6 @@
 # Import the CommonResourceHelper module to test
 $script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
-$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules\DscResource.LocalizationHelper'
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Source\Modules\DscResource.LocalizationHelper'
 
 Import-Module -Name (Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.LocalizationHelper.psm1') -Force
 

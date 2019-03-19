@@ -4,6 +4,7 @@ $script:dscResourceName = 'MSFT_Folder'
 
 # Unit Test Template Version: 1.2.4
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+Write-Warning $script:moduleRoot
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
 {
@@ -557,4 +558,3 @@ finally
 {
     Invoke-TestCleanup
 }
-

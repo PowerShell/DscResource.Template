@@ -1,4 +1,3 @@
-# Localized resources for helper module CommonResourceHelper.
 
 ConvertFrom-StringData @'
     PropertyTypeInvalidForDesiredValues = Property 'DesiredValues' must be either a [System.Collections.Hashtable], [CimInstance] or [PSBoundParametersDictionary]. The type detected was {0}.
@@ -8,4 +7,12 @@ ConvertFrom-StringData @'
     PropertyThatDoesNotMatch = {0} - {1}
     ValueOfTypeDoesNotMatch = {0} value for property {1} does not match. Current state is '{2}' and desired state is '{3}'.
     UnableToCompareProperty = Unable to compare property {0} as the type {1} is not handled by the Test-DscParameterState cmdlet.
+
+    RetrieveFolder = Retrieving folder information of '{0}'.
+    FolderFound = Folder was found, evaluating all properties.
+    FolderNotFound = Folder was not found.
+    CreateFolder = Creating folder '{0}'.
+    EvaluateProperties = Evaluating properties of folder '{0}'.
+    SettingProperties = Setting properties to correct values of folder '{0}'.
+    RemoveFolder = Removing folder '{0}'.
 '@

@@ -1,13 +1,14 @@
-$script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
-$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules'
+$script:ModuleBasePath = Split-Path -Parent -Path (Split-Path -Parent $PSScriptRoot)
+$ModuleName = Split-path -Leaf $script:ModuleBasePath
 
-$script:localizationModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.LocalizationHelper'
-Import-Module -Name (Join-Path -Path $script:localizationModulePath -ChildPath 'DscResource.LocalizationHelper.psm1')
+if ($ModuleName -as [version] -or ($ModuleName -in @('source', 'src')))
+{
+    $ModuleName = Split-Path -Leaf (Split-path -Parent $script:ModuleBasePath)
+}
 
-$script:resourceHelperModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.Common'
-Import-Module -Name (Join-Path -Path $script:resourceHelperModulePath -ChildPath 'DscResource.Common.psm1')
-
-$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_Folder'
+$script:MasterModule = Import-Module -Name (Join-Path $ModuleBasePath "$ModuleName.psd1") -PassThru -force
+# Calling the MasterModule's private function Get-LocalizedData to load data based on current UI culture
+$script:localizedData = &$script:MasterModule { Get-LocalizedData -verbose }
 
 <#
     .SYNOPSIS
@@ -26,6 +27,7 @@ $script:localizedData = Get-LocalizedData -ResourceName 'MSFT_Folder'
         In a real scenarion this parameter would not need to have the type
         qualifier Required in the schema.mof.
 #>
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -41,57 +43,13 @@ function Get-TargetResource
         $ReadOnly
     )
 
-    $getTargetResourceResult = @{
-        Ensure        = 'Absent'
-        Path          = $Path
-        ReadOnly      = $false
-        Hidden        = $false
-        Shared        = $false
-        ShareName     = $null
-    }
-
     Write-Verbose -Message (
         $script:localizedData.RetrieveFolder `
             -f $Path
     )
 
-    # Using -Force to find hidden folders.
-    $folder = Get-Item -Path $Path -Force -ErrorAction 'SilentlyContinue' |
-        Where-Object -FilterScript {
-            $_.PSIsContainer -eq $true
-        }
-
-    if ($folder)
-    {
-        Write-Verbose -Message $script:localizedData.FolderFound
-
-        $isReadOnly = Test-FileAttribute -Folder $folder -Attribute 'ReadOnly'
-        $isHidden = Test-FileAttribute -Folder $folder -Attribute 'Hidden'
-
-        $folderShare = Get-SmbShare |
-            Where-Object -FilterScript {
-            $_.Path -eq $Path
-        }
-
-        # Cast the object to Boolean.
-        $isShared = [System.Boolean] $folderShare
-        if ($isShared)
-        {
-            $shareName = $folderShare.Name
-        }
-
-        $getTargetResourceResult['Ensure'] = 'Present'
-        $getTargetResourceResult['ReadOnly'] = $isReadOnly
-        $getTargetResourceResult['Hidden'] = $isHidden
-        $getTargetResourceResult['Shared'] = $isShared
-        $getTargetResourceResult['ShareName'] = $shareName
-    }
-    else
-    {
-        Write-Verbose -Message $script:localizedData.FolderNotFound
-    }
-
-    return $getTargetResourceResult
+    # Technically, the Ensure = 'Present' should probably be brought back here (not in the Get-Folder)
+    return (Get-Folder @PSBoundParameters)
 }
 
 <#
@@ -134,12 +92,21 @@ function Set-TargetResource
         $Ensure = 'Present'
     )
 
-    $getTargetResourceParameters = @{
-        Path     = $Path
-        ReadOnly = $ReadOnly
+    $getFolderCmd = Get-Command Get-Folder
+    # Copy the Bound Paramters to an Hashtable
+    $getFoldersParameters = @{} + $PSBoundParameters
+
+    # Remove the DSC Set-TargetResource Params that do not exist in the Get-folder
+    foreach ($key in $PSBoundParameters.Keys)
+    {
+        if ($key -notin $getFolderCmd.Parameters.Keys)
+        {
+            $null = $getFoldersParameters.Remove($key)
+        }
     }
 
-    $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
+
+    $getTargetResourceResult = Get-Folder $getFoldersParameters
 
     if ($Ensure -eq 'Present')
     {
@@ -253,96 +220,4 @@ function Test-TargetResource
     }
 
     return $testTargetResourceResult
-}
-
-<#
-    .SYNOPSIS
-        Test if an attribute on a folder is present.
-
-    .PARAMETER Folder
-        The System.IO.DirectoryInfo object of the folder that should be checked
-        for the attribute.
-
-    .PARAMETER Attribute
-        The name of the attribute from the enum System.IO.FileAttributes.
-#>
-function Test-FileAttribute
-{
-    [CmdletBinding()]
-    [OutputType([System.Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.IO.DirectoryInfo]
-        $Folder,
-
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileAttributes]
-        $Attribute
-    )
-
-    $attributeValue = $Folder.Attributes -band [System.IO.FileAttributes]::$Attribute
-
-    switch ($attributeValue)
-    {
-        { $_ -gt 0 }
-        {
-            $isPresent = $true
-        }
-
-        default
-        {
-            $isPresent = $false
-        }
-    }
-
-    return $isPresent
-}
-
-<#
-    .SYNOPSIS
-        Sets or removes an attribute on a folder.
-
-    .PARAMETER Folder
-        The System.IO.DirectoryInfo object of the folder that should have the
-        attribute set or removed.
-
-    .PARAMETER Attribute
-       The name of the attribute from the enum System.IO.FileAttributes.
-
-    .PARAMETER Enabled
-       If the attribute should be enabled or disabled.
-#>
-function Set-FileAttribute
-{
-    [CmdletBinding()]
-    [OutputType([System.IO.DirectoryInfo])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.IO.DirectoryInfo]
-        $Folder,
-
-        [Parameter(Mandatory = $true)]
-        [System.IO.FileAttributes]
-        $Attribute,
-
-        [Parameter(Mandatory = $true)]
-        [System.Boolean]
-        $Enabled
-    )
-
-    switch ($Enabled)
-    {
-        $true
-        {
-            $Folder.Attributes = [System.IO.FileAttributes]::$Attribute
-
-        }
-
-        $false
-        {
-            $Folder.Attributes -= [System.IO.FileAttributes]::$Attribute
-        }
-    }
 }

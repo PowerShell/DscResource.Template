@@ -1,6 +1,6 @@
 # Import the CommonResourceHelper module to test
 $script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
-$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules\DscResource.Common'
+$script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Source\Modules\DscResource.Common'
 
 Import-Module -Name (Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.Common.psm1') -Force
 
@@ -308,4 +308,3 @@ InModuleScope 'DscResource.Common' {
         Assert-VerifiableMock
     }
 }
-
