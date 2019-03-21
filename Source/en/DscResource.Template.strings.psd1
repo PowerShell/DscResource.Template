@@ -10,7 +10,7 @@ ConvertFrom-StringData @'
 
     RetrieveFolder = Retrieving folder information of '{0}'.
     FolderFound = Folder was found, evaluating all properties.
-    FolderNotFound = Folder was not found.
+    FolderNotFound = Folder '{0}' was not found.
     CreateFolder = Creating folder '{0}'.
     EvaluateProperties = Evaluating properties of folder '{0}'.
     SettingProperties = Setting properties to correct values of folder '{0}'.

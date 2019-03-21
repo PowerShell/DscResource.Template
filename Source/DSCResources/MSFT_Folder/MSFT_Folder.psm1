@@ -8,7 +8,7 @@ if ($ModuleName -as [version] -or ($ModuleName -in @('source', 'src')))
 
 $script:MasterModule = Import-Module -Name (Join-Path $ModuleBasePath "$ModuleName.psd1") -PassThru -force
 # Calling the MasterModule's private function Get-LocalizedData to load data based on current UI culture
-$script:localizedData = &$script:MasterModule { Get-LocalizedData -verbose }
+$script:localizedData = &$script:MasterModule { Get-LocalizedData }
 
 <#
     .SYNOPSIS
@@ -16,6 +16,7 @@ $script:localizedData = &$script:MasterModule { Get-LocalizedData -verbose }
 
     .PARAMETER Path
         The path to the folder to retrieve.
+        Not the best example as it could be Absolute or relative
 
     .PARAMETER ReadOnly
        If the files in the folder should be read only.
@@ -24,7 +25,7 @@ $script:localizedData = &$script:MasterModule { Get-LocalizedData -verbose }
     .NOTES
         The ReadOnly parameter was made mandatory in this example to show
         how to handle unused mandatory parameters.
-        In a real scenarion this parameter would not need to have the type
+        In a real scenario this parameter would not need to have the type
         qualifier Required in the schema.mof.
 #>
 
@@ -48,8 +49,47 @@ function Get-TargetResource
             -f $Path
     )
 
-    # Technically, the Ensure = 'Present' should probably be brought back here (not in the Get-Folder)
-    return (Get-Folder @PSBoundParameters)
+    $getFolderParams = @{}
+    foreach ($key in (Get-Command Get-Folder).Parameters.keys)
+    {
+        # Add the parameter to Get-Folder called only if it's a valid parameter
+        if ($PSBoundParameters.containsKey($key))
+        {
+            $getFolderParams.add($key, $PSBoundParameters[$key])
+        }
+    }
+
+    try
+    {
+        # Ensuring we're returning a terminating error from Get-Folder
+        $getFolderParams['ErrorAction'] = 'Stop'
+        $targetFolder = Get-Folder @getFolderParams
+    }
+    catch
+    {
+        # Catching the error message and showing as Verbose in DSC
+        Write-verbose $_.Exception.Message
+    }
+
+
+    if ($targetFolder)
+    {
+        $ensure = 'Present'
+    }
+    else
+    {
+        $ensure = 'Absent'
+    }
+
+    # ensure all keys are present, even if their value -eq $null
+    return @{
+        Ensure    = $ensure
+        Path      = $Path
+        ReadOnly  = $targetFolder.ReadOnly
+        Hidden    = $targetFolder.Hidden
+        Shared    = $targetFolder.Shared
+        ShareName = $targetFolder.ShareName
+    }
 }
 
 <#
@@ -64,7 +104,7 @@ function Get-TargetResource
        Not used in Get-TargetResource.
 
     .PARAMETER Hidden
-        If the folder attribut should be hidden. Default value is $false.
+        If the folder attribute should be hidden. Default value is $false.
 
     .PARAMETER Ensure
         Specifies the desired state of the folder. When set to 'Present', the folder will be created. When set to 'Absent', the folder will be removed. Default value is 'Present'.
@@ -92,49 +132,38 @@ function Set-TargetResource
         $Ensure = 'Present'
     )
 
-    $getFolderCmd = Get-Command Get-Folder
-    # Copy the Bound Paramters to an Hashtable
-    $getFoldersParameters = @{} + $PSBoundParameters
-
-    # Remove the DSC Set-TargetResource Params that do not exist in the Get-folder
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $getFolderCmd.Parameters.Keys)
-        {
-            $null = $getFoldersParameters.Remove($key)
-        }
-    }
-
-
-    $getTargetResourceResult = Get-Folder $getFoldersParameters
+    # Removing the Ensure parameter from PSBoundParameters so we can use the hashtable with Set-Folder
+    $null = $PSBoundParameters.remove('Ensure')
 
     if ($Ensure -eq 'Present')
     {
-        if ($getTargetResourceResult.Ensure -eq 'Absent')
-        {
-            Write-Verbose -Message (
-                $script:localizedData.CreateFolder `
-                    -f $Path
-            )
-
-            $folder = New-Item -Path $Path -ItemType 'Directory' -Force
-        }
-        else
-        {
-            $folder = Get-Item -Path $Path -Force
-        }
-
-        Write-Verbose -Message (
-            $script:localizedData.SettingProperties `
-                -f $Path
-        )
-
-        Set-FileAttribute -Folder $folder -Attribute 'ReadOnly' -Enabled $ReadOnly
-        Set-FileAttribute -Folder $folder -Attribute 'Hidden' -Enabled $Hidden
+        # Create and configure the folder
+        $null = Set-Folder @PSBoundParameters
     }
     else
     {
-        if ($getTargetResourceResult.Ensure -eq 'Present')
+        <#
+        # Example to lazily pass relevant parameters to calling function
+        $getFolderCmd = Get-Command -Name Get-Folder
+        # Copy the Bound Parameters
+        $getFoldersParameters = @{}
+
+        # Add Get-folder's parameter if `"$($key)" is defined in current scope (careful when using ParameterSets)
+        foreach ($key in $getFolderCmd.Parameters.Keys)
+        {
+            if ($value = Get-variable -Name $key -ValueOnly -Scope 0 -ErrorAction SilentlyContinue)
+            {
+                $null = $getFoldersParameters.Add($key, $value)
+            }
+        }
+
+        $getFoldersParameters['ErrorAction'] = 'SilentlyContinue'
+        $TargetFolder = Get-Folder @getFoldersParameters
+        #>
+
+        $TargetFolder = Get-Folder -Path $Path -ErrorAction SilentlyContinue
+
+        if ($TargetFolder)
         {
             Write-Verbose -Message (
                 $script:localizedData.RemoveFolder `

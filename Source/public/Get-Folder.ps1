@@ -1,25 +1,28 @@
+<#
+.SYNOPSIS
+Retrieve a Folder and its properties
+
+.DESCRIPTION
+Get the Folder and whether it is Hidden, ReadOnly and shared.
+If the Folder is shared, it also returns its Share Name.
+
+.PARAMETER Path
+Path of the folder to get
+
+.EXAMPLE
+Get-Folder -Path C:\
+
+.NOTES
+It will throw an exception if the path does not point to a folder.
+
+#>
 function Get-Folder
 {
     [cmdletBinding()]
     Param(
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [String]
-        $Path,
-
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
-        [Boolean]
-        $ReadOnly
-
-        # TODO: Decide on this form (overhead for each function), or the suffix model (current implementation)
-        # ,[Parameter(DontShow)]
-        # [hashtable]
-        # $localizedData = $(
-        #     if ($script:LocalizedData)
-        #     {
-        #         $script:LocalizedData = Get-LocalizedData
-        #     }
-        #     $script:LocalizedData
-        # )
+        $Path
     )
 
     # Using -Force to find hidden folders.
@@ -49,16 +52,17 @@ function Get-Folder
         }
 
         # Return the Folder object
-        @{
-            Ensure    = 'Present'
-            ReadOnly  = $isReadOnly
-            Hidden    = $isHidden
-            Shared    = $isShared
-            ShareName = $shareName
+        [PSCustomObject]@{
+            PSTypeName = 'DscResource.Template.Folder'
+            Path       = $Path
+            ReadOnly   = $isReadOnly
+            Hidden     = $isHidden
+            Shared     = $isShared
+            ShareName  = $shareName
         }
     }
     else
     {
-        Write-Verbose -Message $script:localizedData.FolderNotFound
+        Throw ($script:localizedData.FolderNotFound -f $Path)
     }
 }
