@@ -9,6 +9,8 @@ if ($ModuleName -as [version] -or ($ModuleName -in @('source', 'src')))
 $script:MasterModule = Import-Module -Name (Join-Path $ModuleBasePath "$ModuleName.psd1") -PassThru -force
 # Calling the MasterModule's private function Get-LocalizedData to load data based on current UI culture
 $script:localizedData = &$script:MasterModule { Get-LocalizedData }
+# Storing Private function for future access
+$script:TestDscParameterState = &$script:MasterModule { Get-Command Test-DscParameterState}
 
 <#
     .SYNOPSIS
@@ -187,7 +189,7 @@ function Set-TargetResource
        Not used in Get-TargetResource.
 
     .PARAMETER Hidden
-        If the folder attribut should be hidden. Default value is $false.
+        If the folder attribute should be hidden. Default value is $false.
 
     .PARAMETER Ensure
         Specifies the desired state of the folder. When set to 'Present', the folder will be created. When set to 'Absent', the folder will be removed. Default value is 'Present'.
@@ -235,7 +237,7 @@ function Test-TargetResource
             'Hidden'
         )
 
-        $testTargetResourceResult = Test-DscParameterState `
+        $testTargetResourceResult = &$Script:TestDscParameterState `
             -CurrentValues $getTargetResourceResult `
             -DesiredValues $PSBoundParameters `
             -ValuesToCheck $valuesToCheck
