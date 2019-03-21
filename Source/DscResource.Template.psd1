@@ -5,6 +5,9 @@
   # ID used to uniquely identify this module
   GUID = '940f30e6-6324-4010-b218-30ed233f2f96'
 
+  # PSM1 to load with module
+  RootModule = "DscResource.Template.psm1"
+
   # Author of this module
   Author = 'Microsoft Corporation'
 
@@ -52,17 +55,3 @@
 
   } # End of PrivateData hash table
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

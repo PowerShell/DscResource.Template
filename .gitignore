@@ -2,3 +2,9 @@
 .vs
 .vscode
 node_modules
+
+# Build artefacts folder
+output/*
+
+# Plaster Backup files
+**.bak
