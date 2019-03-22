@@ -23,7 +23,7 @@ $script:dscResourceFriendlyName = '<ResourceFriendlyName>' # TODO: Example 'Fire
 $script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)" # TODO: Update prefix
 
 #region HEADER
-# Integration Test Template Version: 1.3.2
+# Integration Test Template Version: 1.3.3
 [String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
@@ -106,7 +106,7 @@ try
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
-                Test-DscConfiguration -Verbose | Should -Be $true
+                Test-DscConfiguration -Verbose | Should -Be 'True'
             }
         }
 

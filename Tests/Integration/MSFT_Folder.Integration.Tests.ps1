@@ -11,10 +11,10 @@ if (Test-SkipContinuousIntegrationTask -Type 'Integration')
 
 $script:dscModuleName = 'DscResource.Template'
 $script:dscResourceFriendlyName = 'Folder'
-$script:dcsResourceName = "MSFT_$($script:dscResourceFriendlyName)"
+$script:dscResourceName = "MSFT_$($script:dscResourceFriendlyName)"
 
-#region HEADER
-# Integration Test Template Version: 1.3.1
+region HEADER
+# Integration Test Template Version: 1.3.3
 [String] $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests'))) -or `
     (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCResource.Tests\TestHelper.psm1'))) )
@@ -25,17 +25,21 @@ if ( (-not (Test-Path -Path (Join-Path -Path $script:moduleRoot -ChildPath 'DSCR
 Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:dscModuleName `
-    -DSCResourceName $script:dcsResourceName `
+    -DSCResourceName $script:dscResourceName `
     -TestType Integration
 #endregion
 
 try
 {
-    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:DSCResourceName).config.ps1"
+    $configFile = Join-Path -Path $PSScriptRoot -ChildPath "$($script:dscResourceName).config.ps1"
     . $configFile
 
-    Describe "$($script:DSCResourceName)_Integration" {
-        $configurationName = "$($script:DSCResourceName)_Create_Config"
+    Describe "$($script:dscResourceName)_Integration" {
+        BeforeAll {
+            $resourceId = "[$($script:dscResourceFriendlyName)]Integration_Test"
+        }
+
+        $configurationName = "$($script:dscResourceName)_Create_Config"
 
         Context ('When using configuration {0}' -f $configurationName) {
             It 'Should compile and apply the MOF without throwing' {
@@ -70,7 +74,7 @@ try
             It 'Should have set the resource and all the parameters should match' {
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName `
-                    -and $_.ResourceId -eq "[$($script:dscResourceFriendlyName)]Integration_Test"
+                    -and $_.ResourceId -eq $resourceId
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Present'
@@ -82,11 +86,11 @@ try
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
-                Test-DscConfiguration -Verbose | Should -Be $true
+                Test-DscConfiguration -Verbose | Should -Be 'True'
             }
         }
 
-        $configurationName = "$($script:DSCResourceName)_Remove_Config"
+        $configurationName = "$($script:dscResourceName)_Remove_Config"
 
         Context ('When using configuration {0}' -f $configurationName) {
             It 'Should compile and apply the MOF without throwing' {
@@ -121,7 +125,7 @@ try
             It 'Should have set the resource and all the parameters should match' {
                 $resourceCurrentState = $script:currentConfiguration | Where-Object -FilterScript {
                     $_.ConfigurationName -eq $configurationName `
-                    -and $_.ResourceId -eq "[$($script:dscResourceFriendlyName)]Integration_Test"
+                    -and $_.ResourceId -eq $resourceId
                 }
 
                 $resourceCurrentState.Ensure | Should -Be 'Absent'
@@ -133,7 +137,7 @@ try
             }
 
             It 'Should return $true when Test-DscConfiguration is run' {
-                Test-DscConfiguration -Verbose | Should -Be $true
+                Test-DscConfiguration -Verbose | Should -Be 'True'
             }
         }
     }

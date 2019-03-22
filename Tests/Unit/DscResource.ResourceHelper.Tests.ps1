@@ -1,4 +1,4 @@
-# Import the CommonResourceHelper module to test
+# Import the DscResource.Common module to test
 $script:resourceModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
 $script:modulesFolderPath = Join-Path -Path $script:resourceModulePath -ChildPath 'Modules\DscResource.Common'
 

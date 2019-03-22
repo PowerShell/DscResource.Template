@@ -15,7 +15,7 @@
 #>
 
 #region HEADER
-# Integration Test Config Template Version: 1.2.1s
+# Integration Test Config Template Version: 1.2.1
 #endregion
 
 $configFile = [System.IO.Path]::ChangeExtension($MyInvocation.MyCommand.Path, 'json')
