@@ -172,7 +172,7 @@ InModuleScope 'DscResource.LocalizationHelper' {
     }
 
     Describe 'DscResource.LocalizationHelper\New-NotImplementedException' {
-        Context 'When calling with Message parameter only' {
+        Context 'When called with Message parameter only' {
             It 'Should throw the correct error' {
                 $mockErrorMessage = 'Mocked error'
 
@@ -180,7 +180,7 @@ InModuleScope 'DscResource.LocalizationHelper' {
             }
         }
 
-        Context 'When calling with both the Message and ErrorRecord parameter' {
+        Context 'When called with both the Message and ErrorRecord parameter' {
             It 'Should throw the correct error' {
                 $mockErrorMessage = 'Mocked error'
                 $mockExceptionErrorMessage = 'Mocked exception error message'
