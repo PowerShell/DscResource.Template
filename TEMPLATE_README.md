@@ -220,6 +220,13 @@ for more information.
 This is the change log for DscResource.Template. Any changes to the
 DscResource.Template should be mentioned here for reference by the users.
 
+### 2019-05-04
+
+- Moved all functions from `DscResource.LocalizationHelper` module into
+  `DscResource.Common` to remove the need for two modules for containing
+  'common' functions
+  ([issue #21](https://github.com/PowerShell/DscResource.Template/issues/21)).
+
 ### 2019-04-26
 
 - Added a new localization helper function 'New-NotImplementedException'.
