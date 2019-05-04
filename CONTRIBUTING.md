@@ -75,7 +75,7 @@ be placed in the resource module file [DscResource.Common](/Modules/DscResource.
 ### Localization
 
 Please see the localization section in the [style guideline](https://github.com/PowerShell/DscResources/blob/master/StyleGuidelines.md#localization).
-The helper functions is found in the module [DscResource.LocalizationHelper](/Modules/DscResource.LocalizationHelper/DscResource.LocalizationHelper.psm1).
+The helper function are found in the module [DscResource.Common](/Modules/DscResource.Common/DscResource.Common.psm1).
 
 ### Unit tests
 

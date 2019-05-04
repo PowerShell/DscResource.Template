@@ -170,7 +170,7 @@ the test framework finds the module files and shows coverage for the code.
 
 #### Examples
 
-This folder contains the examples of using the resources. These example can
+This folder contains the examples of using the resources. These examples can
 be published automatically to PowerShell Gallery (if opt-in).
 
 #### Tests
@@ -219,6 +219,13 @@ for more information.
 
 This is the change log for DscResource.Template. Any changes to the
 DscResource.Template should be mentioned here for reference by the users.
+
+### 2019-05-04
+
+- Moved all functions from `DscResource.LocalizationHelper` module into
+  `DscResource.Common` to remove the need for two modules for containing
+  'common' functions
+  ([issue #21](https://github.com/PowerShell/DscResource.Template/issues/21)).
 
 ### 2019-04-26
 
