@@ -170,7 +170,7 @@ the test framework finds the module files and shows coverage for the code.
 
 #### Examples
 
-This folder contains the examples of using the resources. These example can
+This folder contains the examples of using the resources. These examples can
 be published automatically to PowerShell Gallery (if opt-in).
 
 #### Tests
