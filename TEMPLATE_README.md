@@ -220,6 +220,12 @@ for more information.
 This is the change log for DscResource.Template. Any changes to the
 DscResource.Template should be mentioned here for reference by the users.
 
+### 2019-04-26
+
+- Added a new localization helper function 'New-NotImplementedException'.
+- Renamed the tests file for the module DscResource.Common which had the
+  wrong name, it is correctly named *DscResource.Common.Tests.ps1* now.
+
 ### 2019-03-17
 
 - Update the integrate test template to version 1.3.3 because the test
