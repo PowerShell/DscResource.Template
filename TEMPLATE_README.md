@@ -220,6 +220,11 @@ for more information.
 This is the change log for DscResource.Template. Any changes to the
 DscResource.Template should be mentioned here for reference by the users.
 
+### 2019-05-12
+
+- Added missing comma from `DscResource.Common.psm1` in `Export-ModuleMember`.
+- Updated `PULL_REQUEST_TEMPLATE.md` to remove some markdown issues.
+
 ### 2019-05-04
 
 - Moved all functions from `DscResource.LocalizationHelper` module into

@@ -488,6 +488,6 @@ Export-ModuleMember -Function @(
     'New-InvalidOperationException',
     'New-ObjectNotFoundException',
     'New-InvalidResultException',
-    'New-NotImplementedException'
+    'New-NotImplementedException',
     'Get-LocalizedData'
 )
